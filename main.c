@@ -109,7 +109,22 @@ int main(void)
   
   chThdCreateStatic(waBlinker, sizeof(waBlinker), NORMALPRIO, blinker, NULL);
   chThdCreateStatic(waSendTelemetry, sizeof(waSendTelemetry), NORMALPRIO, &sendTelemetryThd, NULL);
-  
+
+  if ((((uint32_t)&dshotd1.dsdb % 16)) == 0) {
+    DebugTrace("dshotd1.dsdb aligned 16");
+  } else if ((((uint32_t)&dshotd1.dsdb % 8)) == 0) {
+    DebugTrace("dshotd1.dsdb aligned 8");
+  } else {
+    DebugTrace("dshotd1.dsdb NOT aligned");
+  }
+
+  if ((((uint32_t)&dshotd2.dsdb % 16)) == 0) {
+    DebugTrace("dshotd2.dsdb aligned 16");
+  } else if ((((uint32_t)&dshotd2.dsdb % 8)) == 0) {
+    DebugTrace("dshotd2.dsdb aligned 8");
+  } else {
+    DebugTrace("dshotd2.dsdb NOT aligned");
+  }
   
   while (true) {
     if (specialCommand == DSHOT_CMD_MAX) {
