@@ -9,8 +9,8 @@
 /* uniq id of stm32 processor                                                        */
 /*===========================================================================*/
 
-extern const uint8_t *UniqProcessorId ;
-extern const uint8_t UniqProcessorIdLen ;
+
+
 
 
 
@@ -26,5 +26,5 @@ extern const uint8_t UniqProcessorIdLen ;
 extern SerialUSBDriver SDU1;
 #endif 
 
-extern BaseSequentialStream *chp;
+
 
