@@ -33,8 +33,7 @@ static const DSHOTConfig dshotConfig3 = {
 };
 
 
-__attribute__ ((section(DMA_SECTION))) DSHOTDriver dshotd3;
-
+DSHOTDriver IN_DMA_SECTION_CLEAR(dshotd3);
 
 static THD_WORKING_AREA(waBlinker, 512);
 static noreturn void blinker (void *arg);
@@ -86,11 +85,12 @@ int main(void)
       }
     //    printSamples();
      //    DebugTrace ("%u", throttle);
+    DebugTrace("Ok:%lu Ko:%lu", sumOk, sum17);
     chprintf(chp, "\r\n\r\n\r\n\r\n\r\n");
     throttle += 20;
     if (throttle > 2000)
       throttle = 50;
-    chThdSleepMilliseconds(1000);
+    chThdSleepMilliseconds(10);
   } 
 }
 
