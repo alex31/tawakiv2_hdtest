@@ -25,15 +25,15 @@
 #define BENCH_TELEMETRY_BAUD		115200
 
 
-static const DSHOTConfig dshotConfig1 = {
-  .dma_stream = STM32_PWM1_UP_DMA_STREAM,
-  .dma_channel = STM32_PWM1_UP_DMA_CHANNEL,
-  .pwmp = &PWMD1,
+static const DSHOTConfig dshotConfig3 = {
+  .dma_stream = STM32_PWM3_UP_DMA_STREAM,
+  .dma_channel = STM32_PWM3_UP_DMA_CHANNEL,
+  .pwmp = &PWMD3,
   .tlm_sd = NULL
 };
 
 
-__attribute__ ((section(DMA_SECTION))) DSHOTDriver dshotd1;
+__attribute__ ((section(DMA_SECTION))) DSHOTDriver dshotd3;
 
 
 static THD_WORKING_AREA(waBlinker, 512);
@@ -55,31 +55,31 @@ int main(void)
   
   consoleInit();
   consoleLaunch();
-  dshotStart(&dshotd1, &dshotConfig1);
+  dshotStart(&dshotd3, &dshotConfig3);
   
   chThdCreateStatic(waBlinker, sizeof(waBlinker), NORMALPRIO, blinker, NULL);
 
-  if ((((uint32_t)&dshotd1.dsdb % 16)) == 0) {
-    DebugTrace("dshotd1.dsdb aligned 16");
-  } else if ((((uint32_t)&dshotd1.dsdb % 8)) == 0) {
-    DebugTrace("dshotd1.dsdb aligned 8");
+  if ((((uint32_t)&dshotd3.dsdb % 16)) == 0) {
+    DebugTrace("dshotd3.dsdb aligned 16");
+  } else if ((((uint32_t)&dshotd3.dsdb % 8)) == 0) {
+    DebugTrace("dshotd3.dsdb aligned 8");
   } else {
-    DebugTrace("dshotd1.dsdb NOT aligned");
+    DebugTrace("dshotd3.dsdb NOT aligned");
   }
 
   int throttle = 50;
   while (true) {
     
-    for (size_t i=0; i<2; i++) {
-      dshotSetThrottle(&dshotd1, i, throttle);
+    for (size_t i=0; i<4; i++) {
+      dshotSetThrottle(&dshotd3, i, throttle);
     }
-    dshotSendFrame(&dshotd1);
+    dshotSendFrame(&dshotd3);
 
     // test dma buffer coherency
     for (int j=16; j<20; j++)
       for (int c=0; c<DSHOT_CHANNELS; c++) {
-	if (dshotd1.dsdb.widths16[j][c] != 0) {
-	  DebugTrace("w16[%d][%d] = %u", j, c, dshotd1.dsdb.widths16[j][c]);
+	if (dshotd3.dsdb.widths16[j][c] != 0) {
+	  DebugTrace("w16[%d][%d] = %u", j, c, dshotd3.dsdb.widths16[j][c]);
 	}
       }
 

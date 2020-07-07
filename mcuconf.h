@@ -235,9 +235,9 @@
  * PWM driver system settings.
  */
 #define STM32_PWM_USE_ADVANCED              FALSE
-#define STM32_PWM_USE_TIM1                  TRUE
+#define STM32_PWM_USE_TIM1                  FALSE
 #define STM32_PWM_USE_TIM2                  FALSE
-#define STM32_PWM_USE_TIM3                  FALSE
+#define STM32_PWM_USE_TIM3                  TRUE
 #define STM32_PWM_USE_TIM4                  FALSE
 #define STM32_PWM_USE_TIM5                  FALSE
 #define STM32_PWM_USE_TIM8                  FALSE
@@ -264,6 +264,10 @@
 #define STM32_PWM2_UP_DMA_IRQ_PRIORITY      6
 #define STM32_PWM2_UP_DMA_PRIORITY          2
 
+#define STM32_PWM3_UP_DMA_STREAM		    STM32_DMA_STREAM_ID(1, 2)
+#define STM32_PWM3_UP_DMA_CHANNEL                 5
+#define STM32_PWM3_UP_DMA_IRQ_PRIORITY            6
+#define STM32_PWM3_UP_DMA_PRIORITY                2
 
 
 
