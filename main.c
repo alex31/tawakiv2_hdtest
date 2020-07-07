@@ -11,7 +11,7 @@
 #include "stdutil.h"
 #include "ttyConsole.h"
 #include "esc_dshot.h"
-#include "simpleSerialMessage.h"
+#include "icu_spy.h"
 
 
 /*
@@ -38,6 +38,7 @@ __attribute__ ((section(DMA_SECTION))) DSHOTDriver dshotd3;
 
 static THD_WORKING_AREA(waBlinker, 512);
 static noreturn void blinker (void *arg);
+static void printSamples(void);
 
 int main(void)
 {
@@ -56,6 +57,7 @@ int main(void)
   consoleInit();
   consoleLaunch();
   dshotStart(&dshotd3, &dshotConfig3);
+  initSpy();
   
   chThdCreateStatic(waBlinker, sizeof(waBlinker), NORMALPRIO, blinker, NULL);
 
@@ -82,19 +84,26 @@ int main(void)
 	  DebugTrace("w16[%d][%d] = %u", j, c, dshotd3.dsdb.widths16[j][c]);
 	}
       }
-
-    
-    //    DebugTrace ("%u", throttle);
+    //    printSamples();
+     //    DebugTrace ("%u", throttle);
+    chprintf(chp, "\r\n\r\n\r\n\r\n\r\n");
     throttle += 20;
     if (throttle > 2000)
       throttle = 50;
-    chThdSleepMilliseconds(10);
+    chThdSleepMilliseconds(1000);
   } 
 }
 
 
-
-
+static void printSamples(void)
+{
+  for (int k=0; k<16; k++) {
+    for (int l=0; l<8; l++) {
+      chprintf(chp, "s[%d]=%u, ", k*8+l, samples[k*8+l]);
+    }
+    chprintf(chp, "\r\n");
+  }
+}
 
 /*
 #                                _    _    _                      _            

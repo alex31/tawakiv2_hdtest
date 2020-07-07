@@ -58,7 +58,7 @@
 #define	PA05                           5U
 #define	PA06_DSHOT3_CH1_OUT            6U
 #define	PA07_DSHOT3_CH2_OUT            7U
-#define	PA08                           8U
+#define	PA08_DSHOT_SPY                 8U
 #define	PA09                           9U
 #define	PA10                           10U
 #define	PA11                           11U
@@ -107,7 +107,7 @@
 #define	PD03                           3U
 #define	PD04                           4U
 #define	PD05                           5U
-#define	PD06_DSHOT_TLM                 6U
+#define	PD06                           6U
 #define	PD07                           7U
 #define	PD08                           8U
 #define	PD09                           9U
@@ -243,6 +243,7 @@
 #define	LINE_A04_DEBUG_LOGIC           PAL_LINE(GPIOA, 4U)
 #define	LINE_A06_DSHOT3_CH1_OUT        PAL_LINE(GPIOA, 6U)
 #define	LINE_A07_DSHOT3_CH2_OUT        PAL_LINE(GPIOA, 7U)
+#define	LINE_A08_DSHOT_SPY             PAL_LINE(GPIOA, 8U)
 #define	LINE_A13_SWDIO                 PAL_LINE(GPIOA, 13U)
 #define	LINE_A14_SWCLK                 PAL_LINE(GPIOA, 14U)
 
@@ -254,8 +255,6 @@
 #define	LINE_C00_LED1                  PAL_LINE(GPIOC, 0U)
 #define	LINE_C14_OSC32_IN              PAL_LINE(GPIOC, 14U)
 #define	LINE_C15_OSC32_OUT             PAL_LINE(GPIOC, 15U)
-
-#define	LINE_D06_DSHOT_TLM             PAL_LINE(GPIOD, 6U)
 
 #define	LINE_H00_OSC_IN                PAL_LINE(GPIOH, 0U)
 #define	LINE_H01_OSC_OUT               PAL_LINE(GPIOH, 1U)
@@ -291,7 +290,7 @@
 					 PIN_MODE_INPUT(PA05) | \
 					 PIN_MODE_ALTERNATE(PA06_DSHOT3_CH1_OUT) | \
 					 PIN_MODE_ALTERNATE(PA07_DSHOT3_CH2_OUT) | \
-					 PIN_MODE_INPUT(PA08) | \
+					 PIN_MODE_ALTERNATE(PA08_DSHOT_SPY) | \
 					 PIN_MODE_INPUT(PA09) | \
 					 PIN_MODE_INPUT(PA10) | \
 					 PIN_MODE_INPUT(PA11) | \
@@ -308,7 +307,7 @@
 					 PIN_OTYPE_PUSHPULL(PA05) | \
 					 PIN_OTYPE_PUSHPULL(PA06_DSHOT3_CH1_OUT) | \
 					 PIN_OTYPE_PUSHPULL(PA07_DSHOT3_CH2_OUT) | \
-					 PIN_OTYPE_PUSHPULL(PA08) | \
+					 PIN_OTYPE_PUSHPULL(PA08_DSHOT_SPY) | \
 					 PIN_OTYPE_PUSHPULL(PA09) | \
 					 PIN_OTYPE_PUSHPULL(PA10) | \
 					 PIN_OTYPE_PUSHPULL(PA11) | \
@@ -325,7 +324,7 @@
 					 PIN_OSPEED_SPEED_VERYLOW(PA05) | \
 					 PIN_OSPEED_SPEED_HIGH(PA06_DSHOT3_CH1_OUT) | \
 					 PIN_OSPEED_SPEED_HIGH(PA07_DSHOT3_CH2_OUT) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PA08) | \
+					 PIN_OSPEED_SPEED_HIGH(PA08_DSHOT_SPY) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA09) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA10) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA11) | \
@@ -342,7 +341,7 @@
 					 PIN_PUPDR_PULLDOWN(PA05) | \
 					 PIN_PUPDR_FLOATING(PA06_DSHOT3_CH1_OUT) | \
 					 PIN_PUPDR_FLOATING(PA07_DSHOT3_CH2_OUT) | \
-					 PIN_PUPDR_PULLDOWN(PA08) | \
+					 PIN_PUPDR_FLOATING(PA08_DSHOT_SPY) | \
 					 PIN_PUPDR_PULLDOWN(PA09) | \
 					 PIN_PUPDR_PULLDOWN(PA10) | \
 					 PIN_PUPDR_PULLDOWN(PA11) | \
@@ -359,7 +358,7 @@
 					 PIN_ODR_LEVEL_LOW(PA05) | \
 					 PIN_ODR_LEVEL_LOW(PA06_DSHOT3_CH1_OUT) | \
 					 PIN_ODR_LEVEL_LOW(PA07_DSHOT3_CH2_OUT) | \
-					 PIN_ODR_LEVEL_LOW(PA08) | \
+					 PIN_ODR_LEVEL_HIGH(PA08_DSHOT_SPY) | \
 					 PIN_ODR_LEVEL_LOW(PA09) | \
 					 PIN_ODR_LEVEL_LOW(PA10) | \
 					 PIN_ODR_LEVEL_LOW(PA11) | \
@@ -377,7 +376,7 @@
 					 PIN_AFIO_AF(PA06_DSHOT3_CH1_OUT, 2) | \
 					 PIN_AFIO_AF(PA07_DSHOT3_CH2_OUT, 2))
 
-#define VAL_GPIOA_AFRH			(PIN_AFIO_AF(PA08, 0) | \
+#define VAL_GPIOA_AFRH			(PIN_AFIO_AF(PA08_DSHOT_SPY, 1) | \
 					 PIN_AFIO_AF(PA09, 0) | \
 					 PIN_AFIO_AF(PA10, 0) | \
 					 PIN_AFIO_AF(PA11, 0) | \
@@ -598,7 +597,7 @@
 					 PIN_MODE_INPUT(PD03) | \
 					 PIN_MODE_INPUT(PD04) | \
 					 PIN_MODE_INPUT(PD05) | \
-					 PIN_MODE_ALTERNATE(PD06_DSHOT_TLM) | \
+					 PIN_MODE_INPUT(PD06) | \
 					 PIN_MODE_INPUT(PD07) | \
 					 PIN_MODE_INPUT(PD08) | \
 					 PIN_MODE_INPUT(PD09) | \
@@ -615,7 +614,7 @@
 					 PIN_OTYPE_PUSHPULL(PD03) | \
 					 PIN_OTYPE_PUSHPULL(PD04) | \
 					 PIN_OTYPE_PUSHPULL(PD05) | \
-					 PIN_OTYPE_PUSHPULL(PD06_DSHOT_TLM) | \
+					 PIN_OTYPE_PUSHPULL(PD06) | \
 					 PIN_OTYPE_PUSHPULL(PD07) | \
 					 PIN_OTYPE_PUSHPULL(PD08) | \
 					 PIN_OTYPE_PUSHPULL(PD09) | \
@@ -632,7 +631,7 @@
 					 PIN_OSPEED_SPEED_VERYLOW(PD03) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD04) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD05) | \
-					 PIN_OSPEED_SPEED_HIGH(PD06_DSHOT_TLM) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PD06) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD07) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD08) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PD09) | \
@@ -649,7 +648,7 @@
 					 PIN_PUPDR_PULLDOWN(PD03) | \
 					 PIN_PUPDR_PULLDOWN(PD04) | \
 					 PIN_PUPDR_PULLDOWN(PD05) | \
-					 PIN_PUPDR_FLOATING(PD06_DSHOT_TLM) | \
+					 PIN_PUPDR_PULLDOWN(PD06) | \
 					 PIN_PUPDR_PULLDOWN(PD07) | \
 					 PIN_PUPDR_PULLDOWN(PD08) | \
 					 PIN_PUPDR_PULLDOWN(PD09) | \
@@ -666,7 +665,7 @@
 					 PIN_ODR_LEVEL_LOW(PD03) | \
 					 PIN_ODR_LEVEL_LOW(PD04) | \
 					 PIN_ODR_LEVEL_LOW(PD05) | \
-					 PIN_ODR_LEVEL_HIGH(PD06_DSHOT_TLM) | \
+					 PIN_ODR_LEVEL_LOW(PD06) | \
 					 PIN_ODR_LEVEL_LOW(PD07) | \
 					 PIN_ODR_LEVEL_LOW(PD08) | \
 					 PIN_ODR_LEVEL_LOW(PD09) | \
@@ -683,7 +682,7 @@
 					 PIN_AFIO_AF(PD03, 0) | \
 					 PIN_AFIO_AF(PD04, 0) | \
 					 PIN_AFIO_AF(PD05, 0) | \
-					 PIN_AFIO_AF(PD06_DSHOT_TLM, 7) | \
+					 PIN_AFIO_AF(PD06, 0) | \
 					 PIN_AFIO_AF(PD07, 0))
 
 #define VAL_GPIOD_AFRH			(PIN_AFIO_AF(PD08, 0) | \
@@ -1420,6 +1419,8 @@
 #define AF_LINE_A06_DSHOT3_CH1_OUT       2U
 #define AF_PA07_DSHOT3_CH2_OUT           2U
 #define AF_LINE_A07_DSHOT3_CH2_OUT       2U
+#define AF_PA08_DSHOT_SPY                1U
+#define AF_LINE_A08_DSHOT_SPY            1U
 #define AF_PA13_SWDIO                    0U
 #define AF_LINE_A13_SWDIO                0U
 #define AF_PA14_SWCLK                    0U
@@ -1432,8 +1433,6 @@
 #define AF_LINE_B06_SHELL_TX             7U
 #define AF_PB07_SHELL_RX                 7U
 #define AF_LINE_B07_SHELL_RX             7U
-#define AF_PD06_DSHOT_TLM                7U
-#define AF_LINE_D06_DSHOT_TLM            7U
 
 
 #if !defined(_FROM_ASM_)

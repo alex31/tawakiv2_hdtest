@@ -153,6 +153,7 @@ CSRC = $(STARTUPSRC) \
        $(VARIOUS)/esc_dshot.c \
        ttyConsole.c \
        globalVar.c \
+       icu_spy.c \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
