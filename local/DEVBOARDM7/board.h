@@ -73,12 +73,12 @@
 #define	PB03                           3U
 #define	PB04                           4U
 #define	PB05                           5U
-#define	PB06_DASHBOARD_TX              6U
-#define	PB07_DASHBOARD_RX              7U
+#define	PB06_SHELL_TX                  6U
+#define	PB07_SHELL_RX                  7U
 #define	PB08                           8U
 #define	PB09                           9U
-#define	PB10_SHELL_TX                  10U
-#define	PB11_SHELL_RX                  11U
+#define	PB10                           10U
+#define	PB11                           11U
 #define	PB12                           12U
 #define	PB13                           13U
 #define	PB14                           14U
@@ -252,10 +252,8 @@
 #define	LINE_A13_SWDIO                 PAL_LINE(GPIOA, 13U)
 #define	LINE_A14_SWCLK                 PAL_LINE(GPIOA, 14U)
 
-#define	LINE_B06_DASHBOARD_TX          PAL_LINE(GPIOB, 6U)
-#define	LINE_B07_DASHBOARD_RX          PAL_LINE(GPIOB, 7U)
-#define	LINE_B10_SHELL_TX              PAL_LINE(GPIOB, 10U)
-#define	LINE_B11_SHELL_RX              PAL_LINE(GPIOB, 11U)
+#define	LINE_B06_SHELL_TX              PAL_LINE(GPIOB, 6U)
+#define	LINE_B07_SHELL_RX              PAL_LINE(GPIOB, 7U)
 
 #define	LINE_C00_LED1                  PAL_LINE(GPIOC, 0U)
 #define	LINE_C14_OSC32_IN              PAL_LINE(GPIOC, 14U)
@@ -398,12 +396,12 @@
 					 PIN_MODE_INPUT(PB03) | \
 					 PIN_MODE_INPUT(PB04) | \
 					 PIN_MODE_INPUT(PB05) | \
-					 PIN_MODE_ALTERNATE(PB06_DASHBOARD_TX) | \
-					 PIN_MODE_ALTERNATE(PB07_DASHBOARD_RX) | \
+					 PIN_MODE_ALTERNATE(PB06_SHELL_TX) | \
+					 PIN_MODE_ALTERNATE(PB07_SHELL_RX) | \
 					 PIN_MODE_INPUT(PB08) | \
 					 PIN_MODE_INPUT(PB09) | \
-					 PIN_MODE_ALTERNATE(PB10_SHELL_TX) | \
-					 PIN_MODE_ALTERNATE(PB11_SHELL_RX) | \
+					 PIN_MODE_INPUT(PB10) | \
+					 PIN_MODE_INPUT(PB11) | \
 					 PIN_MODE_INPUT(PB12) | \
 					 PIN_MODE_INPUT(PB13) | \
 					 PIN_MODE_INPUT(PB14) | \
@@ -415,12 +413,12 @@
 					 PIN_OTYPE_PUSHPULL(PB03) | \
 					 PIN_OTYPE_PUSHPULL(PB04) | \
 					 PIN_OTYPE_PUSHPULL(PB05) | \
-					 PIN_OTYPE_PUSHPULL(PB06_DASHBOARD_TX) | \
-					 PIN_OTYPE_PUSHPULL(PB07_DASHBOARD_RX) | \
+					 PIN_OTYPE_PUSHPULL(PB06_SHELL_TX) | \
+					 PIN_OTYPE_PUSHPULL(PB07_SHELL_RX) | \
 					 PIN_OTYPE_PUSHPULL(PB08) | \
 					 PIN_OTYPE_PUSHPULL(PB09) | \
-					 PIN_OTYPE_PUSHPULL(PB10_SHELL_TX) | \
-					 PIN_OTYPE_PUSHPULL(PB11_SHELL_RX) | \
+					 PIN_OTYPE_PUSHPULL(PB10) | \
+					 PIN_OTYPE_PUSHPULL(PB11) | \
 					 PIN_OTYPE_PUSHPULL(PB12) | \
 					 PIN_OTYPE_PUSHPULL(PB13) | \
 					 PIN_OTYPE_PUSHPULL(PB14) | \
@@ -432,12 +430,12 @@
 					 PIN_OSPEED_SPEED_VERYLOW(PB03) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PB04) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PB05) | \
-					 PIN_OSPEED_SPEED_HIGH(PB06_DASHBOARD_TX) | \
-					 PIN_OSPEED_SPEED_HIGH(PB07_DASHBOARD_RX) | \
+					 PIN_OSPEED_SPEED_HIGH(PB06_SHELL_TX) | \
+					 PIN_OSPEED_SPEED_HIGH(PB07_SHELL_RX) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PB08) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PB09) | \
-					 PIN_OSPEED_SPEED_HIGH(PB10_SHELL_TX) | \
-					 PIN_OSPEED_SPEED_HIGH(PB11_SHELL_RX) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PB10) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PB11) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PB12) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PB13) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PB14) | \
@@ -449,12 +447,12 @@
 					 PIN_PUPDR_PULLDOWN(PB03) | \
 					 PIN_PUPDR_PULLDOWN(PB04) | \
 					 PIN_PUPDR_PULLDOWN(PB05) | \
-					 PIN_PUPDR_FLOATING(PB06_DASHBOARD_TX) | \
-					 PIN_PUPDR_FLOATING(PB07_DASHBOARD_RX) | \
+					 PIN_PUPDR_FLOATING(PB06_SHELL_TX) | \
+					 PIN_PUPDR_FLOATING(PB07_SHELL_RX) | \
 					 PIN_PUPDR_PULLDOWN(PB08) | \
 					 PIN_PUPDR_PULLDOWN(PB09) | \
-					 PIN_PUPDR_FLOATING(PB10_SHELL_TX) | \
-					 PIN_PUPDR_FLOATING(PB11_SHELL_RX) | \
+					 PIN_PUPDR_PULLDOWN(PB10) | \
+					 PIN_PUPDR_PULLDOWN(PB11) | \
 					 PIN_PUPDR_PULLDOWN(PB12) | \
 					 PIN_PUPDR_PULLDOWN(PB13) | \
 					 PIN_PUPDR_PULLDOWN(PB14) | \
@@ -466,12 +464,12 @@
 					 PIN_ODR_LEVEL_LOW(PB03) | \
 					 PIN_ODR_LEVEL_LOW(PB04) | \
 					 PIN_ODR_LEVEL_LOW(PB05) | \
-					 PIN_ODR_LEVEL_HIGH(PB06_DASHBOARD_TX) | \
-					 PIN_ODR_LEVEL_HIGH(PB07_DASHBOARD_RX) | \
+					 PIN_ODR_LEVEL_HIGH(PB06_SHELL_TX) | \
+					 PIN_ODR_LEVEL_HIGH(PB07_SHELL_RX) | \
 					 PIN_ODR_LEVEL_LOW(PB08) | \
 					 PIN_ODR_LEVEL_LOW(PB09) | \
-					 PIN_ODR_LEVEL_HIGH(PB10_SHELL_TX) | \
-					 PIN_ODR_LEVEL_HIGH(PB11_SHELL_RX) | \
+					 PIN_ODR_LEVEL_LOW(PB10) | \
+					 PIN_ODR_LEVEL_LOW(PB11) | \
 					 PIN_ODR_LEVEL_LOW(PB12) | \
 					 PIN_ODR_LEVEL_LOW(PB13) | \
 					 PIN_ODR_LEVEL_LOW(PB14) | \
@@ -483,13 +481,13 @@
 					 PIN_AFIO_AF(PB03, 0) | \
 					 PIN_AFIO_AF(PB04, 0) | \
 					 PIN_AFIO_AF(PB05, 0) | \
-					 PIN_AFIO_AF(PB06_DASHBOARD_TX, 7) | \
-					 PIN_AFIO_AF(PB07_DASHBOARD_RX, 7))
+					 PIN_AFIO_AF(PB06_SHELL_TX, 7) | \
+					 PIN_AFIO_AF(PB07_SHELL_RX, 7))
 
 #define VAL_GPIOB_AFRH			(PIN_AFIO_AF(PB08, 0) | \
 					 PIN_AFIO_AF(PB09, 0) | \
-					 PIN_AFIO_AF(PB10_SHELL_TX, 7) | \
-					 PIN_AFIO_AF(PB11_SHELL_RX, 7) | \
+					 PIN_AFIO_AF(PB10, 0) | \
+					 PIN_AFIO_AF(PB11, 0) | \
 					 PIN_AFIO_AF(PB12, 0) | \
 					 PIN_AFIO_AF(PB13, 0) | \
 					 PIN_AFIO_AF(PB14, 0) | \
@@ -1442,14 +1440,10 @@
 #define AF_LINE_A13_SWDIO                0U
 #define AF_PA14_SWCLK                    0U
 #define AF_LINE_A14_SWCLK                0U
-#define AF_PB06_DASHBOARD_TX             7U
-#define AF_LINE_B06_DASHBOARD_TX         7U
-#define AF_PB07_DASHBOARD_RX             7U
-#define AF_LINE_B07_DASHBOARD_RX         7U
-#define AF_PB10_SHELL_TX                 7U
-#define AF_LINE_B10_SHELL_TX             7U
-#define AF_PB11_SHELL_RX                 7U
-#define AF_LINE_B11_SHELL_RX             7U
+#define AF_PB06_SHELL_TX                 7U
+#define AF_LINE_B06_SHELL_TX             7U
+#define AF_PB07_SHELL_RX                 7U
+#define AF_LINE_B07_SHELL_RX             7U
 #define AF_PD06_DSHOT_TLM                7U
 #define AF_LINE_D06_DSHOT_TLM            7U
 

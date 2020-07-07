@@ -5,34 +5,31 @@
 
 # Compiler options here.
 # -Wdouble-promotion -fno-omit-frame-pointer
-GCCVERSIONGTEQ7 := $(shell expr `arm-none-eabi-gcc -dumpversion | cut -f1 -d.` \>= 7)
+
 GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
 	    -Wno-error=unused-function \
 	    -Wunused -Wpointer-arith \
 	    -Werror=sign-compare \
 	    -Wshadow -Wparentheses \
-	    -ftrack-macro-expansion=2 -Wno-error=strict-overflow -Wstrict-overflow=5 
+	    -ftrack-macro-expansion=2 -Wno-error=strict-overflow -Wstrict-overflow=5 \
+	    -Wvla-larger-than=128 -Wduplicated-branches -Wdangling-else \
+            -Wformat-overflow=2 -Wformat-truncation=2
 
-ifeq "$(GCCVERSIONGTEQ7)" "1"
-    GCC_DIAG += -Wvla-larger-than=128 -Wduplicated-branches -Wdangling-else \
-                -Wformat-overflow=2 -Wformat-truncation=2
+
+
+
+
+ifeq ($(USE_OPT),)
+  USE_OPT =  -O0  -ggdb3  -Wall -Wextra \
+	    -falign-functions=16 -fomit-frame-pointer \
+	    $(GCC_DIAG)
 endif
-
-
-
 
 ifeq ($(USE_OPT),)
   USE_OPT =  -Ofast  -flto  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	     $(GCC_DIAG)
 endif
-
-ifeq ($(USE_OPT),)
-  USE_OPT =  -Og  -ggdb3  -Wall -Wextra \
-	    -falign-functions=16 -fomit-frame-pointer \
-	    $(GCC_DIAG)
-endif
-
 
 
 # C specific options here (added to USE_OPT).
@@ -42,7 +39,7 @@ endif
 
 # C++ specific options here (added to USE_OPT).
 ifeq ($(USE_CPPOPT),)
-  USE_CPPOPT = -std=gnu++1y -fno-rtti -fno-exceptions 
+  USE_CPPOPT = -std=c++17 -fno-rtti -fno-exceptions 
 endif
 
 
