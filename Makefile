@@ -19,7 +19,7 @@ GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
 
 
 ifeq ($(USE_OPT),)
-  USE_OPT =  -O2  -Wall -Wextra \
+  USE_OPT =  -Ofast -flto  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	     $(GCC_DIAG)
 endif
@@ -247,7 +247,7 @@ UINCDIR =
 ULIBDIR =
 
 # List all user libraries here
-ULIBS = -lm
+ULIBS = 
 
 #
 # End of user defines
