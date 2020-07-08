@@ -35,6 +35,7 @@ static const DMAConfig dmaConfig = {
   .timeout = TIME_MS2I(100),
 #endif
   .end_cb = &end_cb,
+  .pburst = 0,
   .mburst = 8,
   .fifo = 4
 };

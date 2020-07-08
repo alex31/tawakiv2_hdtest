@@ -71,26 +71,26 @@ int main(void)
   int throttle = 50;
   while (true) {
     
-    for (size_t i=0; i<4; i++) {
-      dshotSetThrottle(&dshotd3, i, throttle);
+    for (size_t i=0; i<DSHOT_CHANNELS; i++) {
+      dshotSetThrottle(&dshotd3, i, throttle+i);
     }
     dshotSendFrame(&dshotd3);
 
     // test dma buffer coherency
-    for (int j=16; j<20; j++)
-      for (int c=0; c<DSHOT_CHANNELS; c++) {
-	if (dshotd3.dsdb.widths16[j][c] != 0) {
-	  DebugTrace("w16[%d][%d] = %u", j, c, dshotd3.dsdb.widths16[j][c]);
-	}
-      }
+    /* for (int j=16; j<20; j++) */
+    /*   for (int c=0; c<DSHOT_CHANNELS; c++) { */
+    /* 	if (dshotd3.dsdb.widths32[j][c] != 0) { */
+    /* 	  DebugTrace("w32[%d][%d] = %u", j, c, dshotd3.dsdb.widths32[j][c]); */
+    /* 	} */
+    /*   } */
+
     //    printSamples();
-     //    DebugTrace ("%u", throttle);
-    DebugTrace("Ok:%lu Ko:%lu", sumOk, sum17);
-    chprintf(chp, "\r\n\r\n\r\n\r\n\r\n");
+    //    DebugTrace ("%u", throttle);
+    //    chprintf(chp, "\r\n\r\n\r\n\r\n\r\n");
     throttle += 20;
     if (throttle > 2000)
       throttle = 50;
-    chThdSleepMilliseconds(10);
+    chThdSleepMilliseconds(2);
   } 
 }
 
@@ -134,6 +134,7 @@ static noreturn void blinker (void *arg)
   while (true) {
     palToggleLine(LINE_C00_LED1); 	
     chThdSleepMilliseconds(500);
+    DebugTrace("Ok:%lu Ko:%lu", sumOk, sum17);
   }
 }
 
