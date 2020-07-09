@@ -37,6 +37,9 @@ DSHOTDriver IN_DMA_SECTION_CLEAR(dshotd3);
 
 static THD_WORKING_AREA(waBlinker, 512);
 static noreturn void blinker (void *arg);
+static THD_WORKING_AREA(waPrinter, 512);
+static noreturn void printer (void *arg);
+
 static void printSamples(void);
 
 int main(void)
@@ -59,6 +62,7 @@ int main(void)
   initSpy();
   
   chThdCreateStatic(waBlinker, sizeof(waBlinker), NORMALPRIO, blinker, NULL);
+  chThdCreateStatic(waPrinter, sizeof(waPrinter), NORMALPRIO, printer, NULL);
 
   if ((((uint32_t)&dshotd3.dsdb % 16)) == 0) {
     DebugTrace("dshotd3.dsdb aligned 16");
@@ -68,9 +72,8 @@ int main(void)
     DebugTrace("dshotd3.dsdb NOT aligned");
   }
 
-  int throttle = 50;
+  int32_t throttle = 50;
   while (true) {
-    
     for (size_t i=0; i<DSHOT_CHANNELS; i++) {
       dshotSetThrottle(&dshotd3, i, throttle+i);
     }
@@ -87,10 +90,10 @@ int main(void)
     //    printSamples();
     //    DebugTrace ("%u", throttle);
     //    chprintf(chp, "\r\n\r\n\r\n\r\n\r\n");
-    throttle += 20;
+    throttle ++;
     if (throttle > 2000)
       throttle = 50;
-    chThdSleepMilliseconds(2);
+    chThdSleepMilliseconds(1);
   } 
 }
 
@@ -135,6 +138,22 @@ static noreturn void blinker (void *arg)
     palToggleLine(LINE_C00_LED1); 	
     chThdSleepMilliseconds(500);
     DebugTrace("Ok:%lu Ko:%lu", sumOk, sum17);
+  }
+}
+
+static noreturn void printer (void *arg)
+{
+  (void)arg;
+  msg_t recThrottle=0;
+  msg_t last=0;
+  chRegSetThreadName("printer");
+
+  while (true) {
+    chMBFetchTimeout(&mb, &recThrottle, TIME_MS2I(1000));
+    if ((recThrottle - last) != 1) {
+      DebugTrace("last = %ld, rec = %ld", last, recThrottle);
+    }
+    last = recThrottle;
   }
 }
 

@@ -17,6 +17,9 @@ static void end_cb(DMADriver *dmap, volatile void *buffer, const size_t num);
 
 static volatile dmaerrormask_t last_err = 0;
 
+#define MB_SIZE 256
+static msg_t mb_buffer[MB_SIZE];
+MAILBOX_DECL(mb, mb_buffer, MB_SIZE);
 
 static const DMAConfig dmaConfig = {
   .stream = STM32_ICU1_CH1_DMA_STREAM,
@@ -57,11 +60,12 @@ static const ICUConfig icu1ch1_cfg = {
 
 uint16_t samples[DMA_DATA_LEN] __attribute__((section(DMA_SECTION "_init"), aligned(16))) = {0}; // took 0.0128 seconds to fill
 
-volatile uint32_t sumOk=0, sum17=0;
-volatile uint32_t currentBitIdx=0;
+volatile uint32_t sumOk=0U, sum17=0U;
+volatile uint32_t currentBitIdx=0U;
+volatile msg_t dshotVal=0;
 
 #define MAX_WIDTH 182U
-#define PULSE_THD 80U
+#define PULSE_WIDTH 80U
 
 
 void initSpy(void)
@@ -114,19 +118,25 @@ static void end_cb(DMADriver *_dmap, volatile void *buffer, size_t num)
 {
   (void) _dmap;
   uint16_t * const smpls = (uint16_t *) buffer;
-  
+
+  chSysLockFromISR();
   for (size_t i=0; i<num; i+=2) {
     const uint16_t w=smpls[i];
     const uint16_t p=smpls[i+1];
     if (w < MAX_WIDTH) {
+      if (p > PULSE_WIDTH)
+	dshotVal |= (1U << currentBitIdx);
       currentBitIdx++;
     } else {
       if (currentBitIdx == 15U) {
 	sumOk++;
+	chMBPostI(&mb, revbit( (uint16_t)dshotVal) >> 5);
       } else {
 	sum17++;
       }
+      dshotVal = 0U;
       currentBitIdx=0U;
     }
   }
+    chSysUnlockFromISR();
 }

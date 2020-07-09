@@ -6,6 +6,7 @@
 
 #define DMA_DATA_LEN 128
 
+extern mailbox_t mb;
 extern uint16_t samples[DMA_DATA_LEN];
 extern volatile uint32_t sumOk, sum17;
 void initSpy(void);
