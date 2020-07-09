@@ -58,7 +58,7 @@ static const ICUConfig icu1ch1_cfg = {
 
 
 
-uint16_t samples[DMA_DATA_LEN] __attribute__((section(DMA_SECTION "_init"), aligned(16))) = {0}; // took 0.0128 seconds to fill
+uint16_t samples[DMA_DATA_LEN] __attribute__((section(DMA_SECTION "_init"), aligned(16))) = {0}; 
 
 volatile uint32_t sumOk=0U, sum17=0U;
 volatile uint32_t currentBitIdx=0U;

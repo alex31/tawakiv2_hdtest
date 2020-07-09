@@ -15,11 +15,6 @@ GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
 	    -Wvla-larger-than=128 -Wduplicated-branches -Wdangling-else \
             -Wformat-overflow=2 -Wno-error=stringop-truncation
 
-
-
-
-
-
 ifeq ($(USE_OPT),)
   USE_OPT =  -Ofast -flto  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
@@ -31,7 +26,6 @@ ifeq ($(USE_OPT),)
 	    -falign-functions=16 -fomit-frame-pointer \
 	    $(GCC_DIAG)
 endif
-
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
