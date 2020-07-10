@@ -52,6 +52,12 @@ int main(void)
  *   RTOS is active.
  */
 
+  // attempt to give priority to peripheral when acceding sram
+  /* uint32_t ahbscr = SCB->AHBSCR; */
+  /* ahbscr &= ~SCB_AHBSCR_CTL_Msk; */
+  /* ahbscr |= 0b11; */
+  /* SCB->AHBSCR = ahbscr; */
+  
   halInit();
   chSysInit();
   initHeap();

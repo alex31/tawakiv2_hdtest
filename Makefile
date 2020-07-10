@@ -16,6 +16,11 @@ GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
             -Wformat-overflow=2 -Wno-error=stringop-truncation
 
 ifeq ($(USE_OPT),)
+  USE_OPT =  -O2 -Wall -Wextra \
+	    -falign-functions=16 -fomit-frame-pointer \
+	     $(GCC_DIAG)
+endif
+ifeq ($(USE_OPT),)
   USE_OPT =  -Ofast -flto  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	     $(GCC_DIAG)
@@ -70,7 +75,7 @@ endif
 # Stack size to be allocated to the Cortex-M process stack. This stack is
 # the stack used by the main() thread.
 ifeq ($(USE_PROCESS_STACKSIZE),)
-  USE_PROCESS_STACKSIZE = 0x800
+  USE_PROCESS_STACKSIZE = 0x600
 endif
 
 # Stack size to the allocated to the Cortex-M main/exceptions stack. This
@@ -81,7 +86,7 @@ endif
 
 # Enables the use of FPU on Cortex-M4 (no, softfp, hard).
 ifeq ($(USE_FPU),)
-  USE_FPU = no
+  USE_FPU = hard
 endif
 
 #

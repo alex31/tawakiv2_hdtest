@@ -1,5 +1,6 @@
 #include "icu_spy.h"
 #include "stdutil.h"
+#include "esc_dshot_config.h"
 #include <string.h>
 
 
@@ -47,7 +48,7 @@ static DMADriver dmap;
 
 static const ICUConfig icu1ch1_cfg = {
   .mode = ICU_INPUT_ACTIVE_HIGH,
-  .frequency = (STM32_SYSCLK/2),    /* 108Mhz ICU clock frequency.   */
+  .frequency = (STM32_SYSCLK / (1200 / DSHOT_SPEED_KHZ)),    /* 108Mhz ICU clock frequency.   */
   .width_cb = NULL,
   .period_cb = NULL,
   .overflow_cb = NULL,
