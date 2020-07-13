@@ -15,21 +15,21 @@ GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
 	    -Wvla-larger-than=128 -Wduplicated-branches -Wdangling-else \
             -Wformat-overflow=2 -Wno-error=stringop-truncation
 
+
 ifeq ($(USE_OPT),)
   USE_OPT =  -O2 -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	     $(GCC_DIAG)
 endif
 ifeq ($(USE_OPT),)
-  USE_OPT =  -Ofast -flto  -Wall -Wextra \
-	    -falign-functions=16 -fomit-frame-pointer \
-	     $(GCC_DIAG)
-endif
-
-ifeq ($(USE_OPT),)
   USE_OPT =  -O0  -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	    $(GCC_DIAG)
+endif
+ifeq ($(USE_OPT),)
+  USE_OPT =  -Ofast -flto  -Wall -Wextra \
+	    -falign-functions=16 -fomit-frame-pointer \
+	     $(GCC_DIAG)
 endif
 
 # C specific options here (added to USE_OPT).
@@ -151,9 +151,11 @@ CSRC = $(STARTUPSRC) \
        $(VARIOUS)/hal_stm32_dma.c \
        $(VARIOUS)/simpleSerialMessage.c \
        $(VARIOUS)/esc_dshot.c \
+       $(VARIOUS)/adcHelper.c \
        ttyConsole.c \
        globalVar.c \
        icu_spy.c \
+       adc_stress.c \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global

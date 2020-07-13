@@ -12,6 +12,7 @@
 #include "ttyConsole.h"
 #include "esc_dshot.h"
 #include "icu_spy.h"
+#include "adc_stress.h"
 
 
 /*
@@ -32,11 +33,29 @@ static const DSHOTConfig dshotConfig3 = {
   .tlm_sd = NULL
 };
 
+static const UARTConfig uartConfig =  {
+					 .txend1_cb =NULL,
+					 .txend2_cb = NULL,
+					 .rxend_cb = NULL,
+					 .rxchar_cb = NULL,
+					 .rxerr_cb = NULL,
+					 .speed = 1000 * 1000,
+					 .cr1 = 0,
+					 .cr2 = USART_CR2_STOP2_BITS,
+					 .cr3 = 0
+  };
+
+
+
 
 DSHOTDriver IN_DMA_SECTION_CLEAR(dshotd3);
 
 static THD_WORKING_AREA(waBlinker, 512);
 static noreturn void blinker (void *arg);
+static THD_WORKING_AREA(waMemoryStress, 512);
+static noreturn void memoryStress (void *arg);
+static THD_WORKING_AREA(waDmaStress, 512);
+static noreturn void dmaStress (void *arg);
 static THD_WORKING_AREA(waPrinter, 512);
 static noreturn void printer (void *arg);
 
@@ -68,8 +87,10 @@ int main(void)
   initSpy();
   
   chThdCreateStatic(waBlinker, sizeof(waBlinker), NORMALPRIO, blinker, NULL);
+  chThdCreateStatic(waMemoryStress, sizeof(waMemoryStress), NORMALPRIO, memoryStress, NULL);
+  chThdCreateStatic(waDmaStress, sizeof(waDmaStress), NORMALPRIO, dmaStress, NULL);
   chThdCreateStatic(waPrinter, sizeof(waPrinter), NORMALPRIO, printer, NULL);
-
+  adcStressInit();
   if ((((uint32_t)&dshotd3.dsdb % 16)) == 0) {
     DebugTrace("dshotd3.dsdb aligned 16");
   } else if ((((uint32_t)&dshotd3.dsdb % 8)) == 0) {
@@ -143,7 +164,40 @@ static noreturn void blinker (void *arg)
   while (true) {
     palToggleLine(LINE_C00_LED1); 	
     chThdSleepMilliseconds(500);
-    DebugTrace("Ok:%lu Ko:%lu", sumOk, sum17);
+    DebugTrace("Ok:%lu Ko:%lu [%.1f %%]", sumOk, sum17, sum17*100.0f/(sumOk+sum17));
+  }
+}
+
+static noreturn void memoryStress (void *arg)
+{
+  static volatile uint16_t IN_DMA_SECTION(stress[1024]);
+  
+  uint32_t cnt = 0;
+  (void)arg;
+  chRegSetThreadName("memory stress");
+  DebugTrace("memory stress addr = %p", stress);
+  while (true) {
+    stress[cnt % ARRAY_LEN(stress)] = stress[(cnt+200 ) % ARRAY_LEN(stress)] +1;
+    cnt++;
+    chThdSleepMilliseconds(10);
+  }
+}
+
+static noreturn void dmaStress (void *arg)
+{
+  static uint8_t IN_DMA_SECTION(stress[1024]);
+  
+  uint32_t cnt = 0;
+  (void)arg;
+  chRegSetThreadName("dma stress");
+  DebugTrace("dma stress addr = %p", stress);
+  size_t nb=sizeof(stress);
+  
+   uartStart(&UARTD2, &uartConfig);
+  
+  while (true) {
+    stress[cnt % ARRAY_LEN(stress)] = stress[(cnt+200 ) % ARRAY_LEN(stress)] +1;
+    uartSendTimeout(&UARTD2, &nb, &stress, TIME_MS2I(100));
   }
 }
 
@@ -156,7 +210,7 @@ static noreturn void printer (void *arg)
 
   while (true) {
     chMBFetchTimeout(&mb, &recThrottle, TIME_MS2I(1000));
-    if ((recThrottle - last) != 1) {
+    if ((recThrottle - last) > 2000) {
       DebugTrace("last = %ld, rec = %ld", last, recThrottle);
     }
     last = recThrottle;

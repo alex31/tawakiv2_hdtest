@@ -52,7 +52,7 @@
  */
 #define	PA00                           0U
 #define	PA01                           1U
-#define	PA02                           2U
+#define	PA02_HIGH_SPEED_USART          2U
 #define	PA03                           3U
 #define	PA04_DEBUG_LOGIC               4U
 #define	PA05                           5U
@@ -85,7 +85,7 @@
 #define	PB15                           15U
 
 #define	PC00_LED1                      0U
-#define	PC01                           1U
+#define	PC01_POTAR                     1U
 #define	PC02                           2U
 #define	PC03                           3U
 #define	PC04                           4U
@@ -240,6 +240,7 @@
 /*
  * IO lines assignments.
  */
+#define	LINE_A02_HIGH_SPEED_USART      PAL_LINE(GPIOA, 2U)
 #define	LINE_A04_DEBUG_LOGIC           PAL_LINE(GPIOA, 4U)
 #define	LINE_A06_DSHOT3_CH1_OUT        PAL_LINE(GPIOA, 6U)
 #define	LINE_A07_DSHOT3_CH2_OUT        PAL_LINE(GPIOA, 7U)
@@ -253,6 +254,7 @@
 #define	LINE_B07_SHELL_RX              PAL_LINE(GPIOB, 7U)
 
 #define	LINE_C00_LED1                  PAL_LINE(GPIOC, 0U)
+#define	LINE_C01_POTAR                 PAL_LINE(GPIOC, 1U)
 #define	LINE_C14_OSC32_IN              PAL_LINE(GPIOC, 14U)
 #define	LINE_C15_OSC32_OUT             PAL_LINE(GPIOC, 15U)
 
@@ -284,7 +286,7 @@
 
 #define VAL_GPIOA_MODER                 (PIN_MODE_INPUT(PA00) | \
 					 PIN_MODE_INPUT(PA01) | \
-					 PIN_MODE_INPUT(PA02) | \
+					 PIN_MODE_ALTERNATE(PA02_HIGH_SPEED_USART) | \
 					 PIN_MODE_INPUT(PA03) | \
 					 PIN_MODE_OUTPUT(PA04_DEBUG_LOGIC) | \
 					 PIN_MODE_INPUT(PA05) | \
@@ -301,7 +303,7 @@
 
 #define VAL_GPIOA_OTYPER                (PIN_OTYPE_PUSHPULL(PA00) | \
 					 PIN_OTYPE_PUSHPULL(PA01) | \
-					 PIN_OTYPE_PUSHPULL(PA02) | \
+					 PIN_OTYPE_PUSHPULL(PA02_HIGH_SPEED_USART) | \
 					 PIN_OTYPE_PUSHPULL(PA03) | \
 					 PIN_OTYPE_PUSHPULL(PA04_DEBUG_LOGIC) | \
 					 PIN_OTYPE_PUSHPULL(PA05) | \
@@ -318,7 +320,7 @@
 
 #define VAL_GPIOA_OSPEEDR               (PIN_OSPEED_SPEED_VERYLOW(PA00) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA01) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PA02) | \
+					 PIN_OSPEED_SPEED_HIGH(PA02_HIGH_SPEED_USART) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA03) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA04_DEBUG_LOGIC) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PA05) | \
@@ -335,7 +337,7 @@
 
 #define VAL_GPIOA_PUPDR                 (PIN_PUPDR_PULLDOWN(PA00) | \
 					 PIN_PUPDR_PULLDOWN(PA01) | \
-					 PIN_PUPDR_PULLDOWN(PA02) | \
+					 PIN_PUPDR_FLOATING(PA02_HIGH_SPEED_USART) | \
 					 PIN_PUPDR_PULLDOWN(PA03) | \
 					 PIN_PUPDR_FLOATING(PA04_DEBUG_LOGIC) | \
 					 PIN_PUPDR_PULLDOWN(PA05) | \
@@ -352,7 +354,7 @@
 
 #define VAL_GPIOA_ODR                   (PIN_ODR_LEVEL_LOW(PA00) | \
 					 PIN_ODR_LEVEL_LOW(PA01) | \
-					 PIN_ODR_LEVEL_LOW(PA02) | \
+					 PIN_ODR_LEVEL_HIGH(PA02_HIGH_SPEED_USART) | \
 					 PIN_ODR_LEVEL_LOW(PA03) | \
 					 PIN_ODR_LEVEL_LOW(PA04_DEBUG_LOGIC) | \
 					 PIN_ODR_LEVEL_LOW(PA05) | \
@@ -369,7 +371,7 @@
 
 #define VAL_GPIOA_AFRL			(PIN_AFIO_AF(PA00, 0) | \
 					 PIN_AFIO_AF(PA01, 0) | \
-					 PIN_AFIO_AF(PA02, 0) | \
+					 PIN_AFIO_AF(PA02_HIGH_SPEED_USART, 7) | \
 					 PIN_AFIO_AF(PA03, 0) | \
 					 PIN_AFIO_AF(PA04_DEBUG_LOGIC, 0) | \
 					 PIN_AFIO_AF(PA05, 0) | \
@@ -489,7 +491,7 @@
 					 PIN_AFIO_AF(PB15, 0))
 
 #define VAL_GPIOC_MODER                 (PIN_MODE_OUTPUT(PC00_LED1) | \
-					 PIN_MODE_INPUT(PC01) | \
+					 PIN_MODE_ANALOG(PC01_POTAR) | \
 					 PIN_MODE_INPUT(PC02) | \
 					 PIN_MODE_INPUT(PC03) | \
 					 PIN_MODE_INPUT(PC04) | \
@@ -506,7 +508,7 @@
 					 PIN_MODE_INPUT(PC15_OSC32_OUT))
 
 #define VAL_GPIOC_OTYPER                (PIN_OTYPE_PUSHPULL(PC00_LED1) | \
-					 PIN_OTYPE_PUSHPULL(PC01) | \
+					 PIN_OTYPE_PUSHPULL(PC01_POTAR) | \
 					 PIN_OTYPE_PUSHPULL(PC02) | \
 					 PIN_OTYPE_PUSHPULL(PC03) | \
 					 PIN_OTYPE_PUSHPULL(PC04) | \
@@ -523,7 +525,7 @@
 					 PIN_OTYPE_PUSHPULL(PC15_OSC32_OUT))
 
 #define VAL_GPIOC_OSPEEDR               (PIN_OSPEED_SPEED_VERYLOW(PC00_LED1) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PC01) | \
+					 PIN_OSPEED_SPEED_VERYLOW(PC01_POTAR) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC02) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC03) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PC04) | \
@@ -540,7 +542,7 @@
 					 PIN_OSPEED_SPEED_HIGH(PC15_OSC32_OUT))
 
 #define VAL_GPIOC_PUPDR                 (PIN_PUPDR_FLOATING(PC00_LED1) | \
-					 PIN_PUPDR_PULLDOWN(PC01) | \
+					 PIN_PUPDR_FLOATING(PC01_POTAR) | \
 					 PIN_PUPDR_PULLDOWN(PC02) | \
 					 PIN_PUPDR_PULLDOWN(PC03) | \
 					 PIN_PUPDR_PULLDOWN(PC04) | \
@@ -557,7 +559,7 @@
 					 PIN_PUPDR_FLOATING(PC15_OSC32_OUT))
 
 #define VAL_GPIOC_ODR                   (PIN_ODR_LEVEL_HIGH(PC00_LED1) | \
-					 PIN_ODR_LEVEL_LOW(PC01) | \
+					 PIN_ODR_LEVEL_LOW(PC01_POTAR) | \
 					 PIN_ODR_LEVEL_LOW(PC02) | \
 					 PIN_ODR_LEVEL_LOW(PC03) | \
 					 PIN_ODR_LEVEL_LOW(PC04) | \
@@ -574,7 +576,7 @@
 					 PIN_ODR_LEVEL_HIGH(PC15_OSC32_OUT))
 
 #define VAL_GPIOC_AFRL			(PIN_AFIO_AF(PC00_LED1, 0) | \
-					 PIN_AFIO_AF(PC01, 0) | \
+					 PIN_AFIO_AF(PC01_POTAR, 0) | \
 					 PIN_AFIO_AF(PC02, 0) | \
 					 PIN_AFIO_AF(PC03, 0) | \
 					 PIN_AFIO_AF(PC04, 0) | \
@@ -1415,6 +1417,8 @@
 					 PIN_AFIO_AF(PK14, 0) | \
 					 PIN_AFIO_AF(PK15, 0))
 
+#define AF_PA02_HIGH_SPEED_USART         7U
+#define AF_LINE_A02_HIGH_SPEED_USART     7U
 #define AF_PA06_DSHOT3_CH1_OUT           2U
 #define AF_LINE_A06_DSHOT3_CH1_OUT       2U
 #define AF_PA07_DSHOT3_CH2_OUT           2U
