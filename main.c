@@ -1,6 +1,6 @@
-/*
-  Nom(s), prénom(s) du ou des élèves : 
- */
+
+
+#define STRESS 1
 
 #include <ch.h>
 #include <hal.h>
@@ -12,7 +12,9 @@
 #include "ttyConsole.h"
 #include "esc_dshot.h"
 #include "icu_spy.h"
+#if STRESS
 #include "adc_stress.h"
+#endif
 
 
 /*
@@ -33,6 +35,7 @@ static const DSHOTConfig dshotConfig3 = {
   .tlm_sd = NULL
 };
 
+#if STRESS
 static const UARTConfig uartConfig =  {
 					 .txend1_cb =NULL,
 					 .txend2_cb = NULL,
@@ -44,7 +47,7 @@ static const UARTConfig uartConfig =  {
 					 .cr2 = USART_CR2_STOP2_BITS,
 					 .cr3 = 0
   };
-
+#endif
 
 
 
@@ -52,10 +55,12 @@ DSHOTDriver IN_DMA_SECTION_CLEAR(dshotd3);
 
 static THD_WORKING_AREA(waBlinker, 512);
 static noreturn void blinker (void *arg);
+#if STRESS
 static THD_WORKING_AREA(waMemoryStress, 512);
 static noreturn void memoryStress (void *arg);
 static THD_WORKING_AREA(waDmaStress, 512);
 static noreturn void dmaStress (void *arg);
+#endif
 static THD_WORKING_AREA(waPrinter, 512);
 static noreturn void printer (void *arg);
 
@@ -87,10 +92,14 @@ int main(void)
   initSpy();
   
   chThdCreateStatic(waBlinker, sizeof(waBlinker), NORMALPRIO, blinker, NULL);
+#if STRESS
   chThdCreateStatic(waMemoryStress, sizeof(waMemoryStress), NORMALPRIO, memoryStress, NULL);
   chThdCreateStatic(waDmaStress, sizeof(waDmaStress), NORMALPRIO, dmaStress, NULL);
-  chThdCreateStatic(waPrinter, sizeof(waPrinter), NORMALPRIO, printer, NULL);
   adcStressInit();
+#endif
+
+  chThdCreateStatic(waPrinter, sizeof(waPrinter), NORMALPRIO, printer, NULL);
+  
   if ((((uint32_t)&dshotd3.dsdb % 16)) == 0) {
     DebugTrace("dshotd3.dsdb aligned 16");
   } else if ((((uint32_t)&dshotd3.dsdb % 8)) == 0) {
@@ -164,10 +173,16 @@ static noreturn void blinker (void *arg)
   while (true) {
     palToggleLine(LINE_C00_LED1); 	
     chThdSleepMilliseconds(500);
-    DebugTrace("Ok:%lu Ko:%lu [%.1f %%]", sumOk, sum17, sum17*100.0f/(sumOk+sum17));
+    DebugTrace("Ok:%lu Ko:%lu [%.1f %%] Ter=%u Fer=%u DMer=%u",
+	       sumOk, sum17, sum17*100.0f/(sumOk+sum17),
+	       dshotd3.dmap.nbTransferError,
+	       dshotd3.dmap.nbFifoError,
+	       dshotd3.dmap.nbDirectModeError
+	       );
   }
 }
 
+#if STRESS
 static noreturn void memoryStress (void *arg)
 {
   static volatile uint16_t IN_DMA_SECTION(stress[1024]);
@@ -185,7 +200,7 @@ static noreturn void memoryStress (void *arg)
 
 static noreturn void dmaStress (void *arg)
 {
-  static uint8_t IN_DMA_SECTION(stress[1024]);
+  static uint8_t IN_DMA_SECTION(stress[128]);
   
   uint32_t cnt = 0;
   (void)arg;
@@ -193,14 +208,15 @@ static noreturn void dmaStress (void *arg)
   DebugTrace("dma stress addr = %p", stress);
   size_t nb=sizeof(stress);
   
-   uartStart(&UARTD2, &uartConfig);
+  uartStart(&UARTD2, &uartConfig);
   
   while (true) {
     stress[cnt % ARRAY_LEN(stress)] = stress[(cnt+200 ) % ARRAY_LEN(stress)] +1;
+    //    chThdSleepMilliseconds(10);
     uartSendTimeout(&UARTD2, &nb, &stress, TIME_MS2I(100));
   }
 }
-
+#endif
 static noreturn void printer (void *arg)
 {
   (void)arg;

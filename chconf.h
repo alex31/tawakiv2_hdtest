@@ -428,8 +428,9 @@
  *
  * @note    The default is @p FALSE.
  */
+#ifndef CH_DBG_ENABLE_ASSERTS
 #define CH_DBG_ENABLE_ASSERTS               TRUE
-
+#endif
 /**
  * @brief   Debug option, trace buffer.
  * @details If enabled then the trace buffer is activated.
