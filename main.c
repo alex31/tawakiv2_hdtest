@@ -51,7 +51,7 @@ static const UARTConfig uartConfig =  {
 
 
 
-DSHOTDriver IN_DMA_SECTION_CLEAR(dshotd3);
+static DSHOTDriver dshotd3 __attribute__ ((section(".ram2"), aligned(8)));
 
 static THD_WORKING_AREA(waBlinker, 512);
 static noreturn void blinker (void *arg);
@@ -81,10 +81,12 @@ int main(void)
   /* ahbscr &= ~SCB_AHBSCR_CTL_Msk; */
   /* ahbscr |= 0b11; */
   /* SCB->AHBSCR = ahbscr; */
-  
+
   halInit();
   chSysInit();
   initHeap();
+  
+  //  SCB_DisableDCache();
   
   consoleInit();
   consoleLaunch();
@@ -194,7 +196,6 @@ static noreturn void memoryStress (void *arg)
   while (true) {
     stress[cnt % ARRAY_LEN(stress)] = stress[(cnt+200 ) % ARRAY_LEN(stress)] +1;
     cnt++;
-    chThdSleepMilliseconds(10);
   }
 }
 
@@ -213,7 +214,7 @@ static noreturn void dmaStress (void *arg)
   while (true) {
     stress[cnt % ARRAY_LEN(stress)] = stress[(cnt+200 ) % ARRAY_LEN(stress)] +1;
     //    chThdSleepMilliseconds(10);
-    uartSendTimeout(&UARTD2, &nb, &stress, TIME_MS2I(100));
+    uartSendTimeout(&UARTD2, &nb, &stress, TIME_INFINITE);
   }
 }
 #endif
