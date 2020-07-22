@@ -130,10 +130,9 @@ int main(void)
     //    printSamples();
     //    DebugTrace ("%u", throttle);
     //    chprintf(chp, "\r\n\r\n\r\n\r\n\r\n");
-    throttle ++;
-    if (throttle > 2000)
+    if (++throttle > 2000)
       throttle = 50;
-    chThdSleepMilliseconds(1);
+    chThdSleepMicroseconds(500);
   } 
 }
 

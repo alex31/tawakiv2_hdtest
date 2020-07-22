@@ -29,6 +29,7 @@ static void adc_cb(ADCDriver *adcp, adcsample_t *buffer, size_t n);
  */
 
 static float scaleTemp (int fromTmp);
+static volatile size_t nbSamples=0U;
 
 static THD_WORKING_AREA(waDisplayAdc, 512);
 static noreturn void displayAdc (void *arg)
@@ -41,8 +42,8 @@ static noreturn void displayAdc (void *arg)
     const float internalTemp = scaleTemp(adcSamples[0]);
     const float potVolt = 3.3f * adcSamples[1]/4095.f;
     
-    DebugTrace("temp=%.1f; potVolt=%.3f", internalTemp,
-	       potVolt);
+    DebugTrace("temp=%.1f; potVolt=%.3f [%u Isr]", internalTemp,
+	       potVolt, adcGetNbSamples());
     chThdSleepMilliseconds(1000);
   }
 }
@@ -52,7 +53,7 @@ static ADCConversionGroup adcgrpcfg;
 void adcStressInit(void)
 {
   adcgrpcfg = adcGetConfig(ADC_GRP1_NUM_CHANNELS,
-			   ADC_CONTINUOUS,
+			   ADC_TIMER_DRIVEN(2000), // ADC_CONTINUOUS
 			   &adc_cb,
 			   ADC_CHANNEL_SENSOR,
 			   LINE_C01_POTAR,
@@ -89,4 +90,11 @@ static void adc_cb(ADCDriver *adcp, adcsample_t *buffer, size_t n)
   (void) adcp;
   (void) buffer;
   (void) n;
+
+  nbSamples++;
+}
+
+size_t adcGetNbSamples(void)
+{
+  return nbSamples;
 }
