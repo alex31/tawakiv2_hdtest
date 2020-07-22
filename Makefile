@@ -17,14 +17,14 @@ GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
 
 
 ifeq ($(USE_OPT),)
-  USE_OPT =  -O2 -Wall -Wextra \
-	    -falign-functions=16 -fomit-frame-pointer \
-	     $(GCC_DIAG) -DCH_DBG_ENABLE_ASSERTS=0
-endif
-ifeq ($(USE_OPT),)
   USE_OPT =  -O0  -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	    $(GCC_DIAG) -DCH_DBG_ENABLE_ASSERTS=1
+endif
+ifeq ($(USE_OPT),)
+  USE_OPT =  -O2 -Wall -Wextra \
+	    -falign-functions=16 -fomit-frame-pointer \
+	     $(GCC_DIAG) -DCH_DBG_ENABLE_ASSERTS=0
 endif
 ifeq ($(USE_OPT),)
   USE_OPT =  -Ofast -flto  -Wall -Wextra \

@@ -3,7 +3,6 @@
 #include <stdnoreturn.h>
 #include "stdutil.h"
 #include "adc_stress.h"
-#include "adcHelper.h"
 
 /*
   ° connecter B6 (uart1_tx) sur ftdi rx
@@ -11,12 +10,14 @@
   ° connecter C0 sur led0 
 */
 
+#define TIM6TRGO 0b1101
 #define VOLT_TO_ADC(x) ((uint32_t)((x/3.3f)*4095))
 
 #define ADC_GRP1_NUM_CHANNELS   2
 #define ADC_GRP1_BUF_DEPTH      1
 static adcsample_t IN_DMA_SECTION_CLEAR(adcSamples[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH]);
 static void adc_cb(ADCDriver *adcp, adcsample_t *buffer, size_t n);
+static void adcErrorCb(ADCDriver *adcp, adcerror_t err);
 /*
  * ADC conversion group.
  * Mode:        Linear buffer, 1 samples of 2 channels, SW triggered.
@@ -30,6 +31,7 @@ static void adc_cb(ADCDriver *adcp, adcsample_t *buffer, size_t n);
 
 static float scaleTemp (int fromTmp);
 static volatile size_t nbSamples=0U;
+static volatile bool   adcWatchDogTriggered=false;
 
 static THD_WORKING_AREA(waDisplayAdc, 512);
 static noreturn void displayAdc (void *arg)
@@ -42,28 +44,47 @@ static noreturn void displayAdc (void *arg)
     const float internalTemp = scaleTemp(adcSamples[0]);
     const float potVolt = 3.3f * adcSamples[1]/4095.f;
     
-    DebugTrace("temp=%.1f; potVolt=%.3f [%u Isr]", internalTemp,
-	       potVolt, adcGetNbSamples());
+    DebugTrace("temp=%.1f; potVolt=%.3f [%u Isr] %c", internalTemp,
+      potVolt, adcGetNbSamples(), adcWatchDogTriggered ? 'T' : ' ');
+    adcWatchDogTriggered = false;
     chThdSleepMilliseconds(1000);
   }
 }
 
+static GPTConfig gpt6cfg1 = {
+			     .frequency =  1e4,
+			     .callback  =  NULL,
+			     .cr2       =  TIM_CR2_MMS_1,  /* MMS = 010 = TRGO on Update Event.        */
+			     .dier      =  0U
+};
 
-static ADCConversionGroup adcgrpcfg;
+static const ADCConversionGroup adcgrpcfg = {
+  .circular	= TRUE,   // continuous conversion
+  .num_channels = ADC_GRP1_NUM_CHANNELS,
+  .end_cb	= &adc_cb, // adc completed callback,
+  .error_cb	= &adcErrorCb, // adc error callback,
+  .cr1		= ADC_CR1_AWDSGL | ADC_CR1_AWDEN | ADC_CR1_AWDIE | (11 << ADC_CR1_AWDCH_Pos),
+  .cr2		= ADC_CR2_EXTEN_RISING | ADC_CR2_EXTSEL_SRC(TIM6TRGO),
+  .smpr1	= ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_480) | ADC_SMPR1_SMP_AN11(ADC_SAMPLE_480),
+  .smpr2	= 0,                        
+  .htr		= VOLT_TO_ADC(2.0),
+  .ltr		= VOLT_TO_ADC(1.0),
+  .sqr1		= 0,
+  .sqr2		= 0,					   
+  .sqr3		= ADC_SQR3_SQ1_N(ADC_CHANNEL_SENSOR) | 	ADC_SQR3_SQ2_N(ADC_CHANNEL_IN11)
+};
+
 void adcStressInit(void)
 {
-  adcgrpcfg = adcGetConfig(ADC_GRP1_NUM_CHANNELS,
-			   ADC_TIMER_DRIVEN(2000), // ADC_CONTINUOUS
-			   &adc_cb,
-			   ADC_CHANNEL_SENSOR,
-			   LINE_C01_POTAR,
-			   ADC_END);
+  gptStart(&GPTD6, &gpt6cfg1);
+  gptStartContinuous(&GPTD6, 5);
 
   adcStart(&ADCD1, NULL);
   
   // initialise le capteur interne de température
   adcSTM32EnableTSVREFE();
   adcStartConversion(&ADCD1, &adcgrpcfg, adcSamples, ADC_GRP1_BUF_DEPTH);
+
   
   chThdCreateStatic(waDisplayAdc, sizeof(waDisplayAdc), NORMALPRIO+1, &displayAdc, NULL);
 }
@@ -97,4 +118,16 @@ static void adc_cb(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 size_t adcGetNbSamples(void)
 {
   return nbSamples;
+}
+
+static void adcErrorCb(ADCDriver *adcp, adcerror_t err)
+{
+  (void) adcp;
+
+  if (err == ADC_ERR_WATCHDOG) {
+    adcWatchDogTriggered=true;
+    chSysLockFromISR();
+    adcStartConversionI(&ADCD1, &adcgrpcfg, adcSamples, ADC_GRP1_BUF_DEPTH);
+    chSysUnlockFromISR();
+  }
 }
