@@ -28,12 +28,6 @@
 #define BENCH_TELEMETRY_BAUD		115200
 
 
-static const DSHOTConfig dshotConfig3 = {
-  .dma_stream = STM32_PWM3_UP_DMA_STREAM,
-  .dma_channel = STM32_PWM3_UP_DMA_CHANNEL,
-  .pwmp = &PWMD3,
-  .tlm_sd = NULL
-};
 
 #if STRESS
 static const UARTConfig uartConfig =  {
@@ -51,7 +45,15 @@ static const UARTConfig uartConfig =  {
 
 
 
-static DSHOTDriver dshotd3 __attribute__ ((section(".ram2"), aligned(8)));
+static DshotDmaBuffer dshotd3DmaBuffer __attribute__ ((section(".ram2"), aligned(8)));
+static const DSHOTConfig dshotConfig3 = {
+  .dma_stream = STM32_PWM3_UP_DMA_STREAM,
+  .dma_channel = STM32_PWM3_UP_DMA_CHANNEL,
+  .pwmp = &PWMD3,
+  .tlm_sd = NULL,
+  .uncached_dma_buf = &dshotd3DmaBuffer
+};
+static DSHOTDriver dshotd3;
 
 static THD_WORKING_AREA(waBlinker, 512);
 static noreturn void blinker (void *arg);
@@ -102,12 +104,12 @@ int main(void)
 
   chThdCreateStatic(waPrinter, sizeof(waPrinter), NORMALPRIO, printer, NULL);
   
-  if ((((uint32_t)&dshotd3.dsdb % 16)) == 0) {
-    DebugTrace("dshotd3.dsdb aligned 16");
-  } else if ((((uint32_t)&dshotd3.dsdb % 8)) == 0) {
-    DebugTrace("dshotd3.dsdb aligned 8");
+  if ((((uint32_t)&dshotd3.config->uncached_dma_buf % 16)) == 0) {
+    DebugTrace("dshotd3.config->uncached_dma_buf aligned 16");
+  } else if ((((uint32_t)&dshotd3.config->uncached_dma_buf % 8)) == 0) {
+    DebugTrace("dshotd3.config->uncached_dma_buf aligned 8");
   } else {
-    DebugTrace("dshotd3.dsdb NOT aligned");
+    DebugTrace("dshotd3.config->uncached_dma_buf NOT aligned");
   }
 
   int32_t throttle = 50;
@@ -120,8 +122,8 @@ int main(void)
     // test dma buffer coherency
     /* for (int j=16; j<20; j++) */
     /*   for (int c=0; c<DSHOT_CHANNELS; c++) { */
-    /* 	if (dshotd3.dsdb.widths32[j][c] != 0) { */
-    /* 	  DebugTrace("w32[%d][%d] = %u", j, c, dshotd3.dsdb.widths32[j][c]); */
+    /* 	if (dshotd3.config->uncached_dma_buf.widths32[j][c] != 0) { */
+    /* 	  DebugTrace("w32[%d][%d] = %u", j, c, dshotd3.config->uncached_dma_buf.widths32[j][c]); */
     /* 	} */
     /*   } */
 

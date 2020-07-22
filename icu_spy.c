@@ -14,7 +14,7 @@ static bool startDma(void);
 static void startDmaAcquisition(uint16_t *widthOrPeriod,
 				size_t depth);
 static void error_cb(DMADriver *dmap, dmaerrormask_t err);
-static void end_cb(DMADriver *dmap, volatile void *buffer, const size_t num);
+static void end_cb(DMADriver *dmap, void *buffer, const size_t num);
 
 static volatile dmaerrormask_t last_err = 0;
 
@@ -115,7 +115,7 @@ static void error_cb(DMADriver *_dmap, dmaerrormask_t err)
   chSysHalt("error_cb");
 }
 
-static void end_cb(DMADriver *_dmap, volatile void *buffer, size_t num)
+static void end_cb(DMADriver *_dmap, void *buffer, size_t num)
 {
   (void) _dmap;
   uint16_t * const smpls = (uint16_t *) buffer;
