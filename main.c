@@ -177,7 +177,7 @@ static noreturn void blinker (void *arg)
   while (true) {
     palToggleLine(LINE_C00_LED1); 	
     chThdSleepMilliseconds(500);
-    DebugTrace("Ok:%lu Ko:%lu [%.1f %%] Ter=%u Fer=%u DMer=%u",
+    DebugTrace("Ok:%lu Ko:%lu [%.2f %%] Ter=%u Fer=%u DMer=%u",
 	       sumOk, sum17, sum17*100.0f/(sumOk+sum17),
 	       dshotd3.dmap.nbTransferError,
 	       dshotd3.dmap.nbFifoError,
