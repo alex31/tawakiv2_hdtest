@@ -45,7 +45,7 @@ static const UARTConfig uartConfig =  {
 
 
 
-static DshotDmaBuffer dshotd3DmaBuffer __attribute__ ((section(".ram2"), aligned(8)));
+static DshotDmaBuffer dshotd3DmaBuffer __attribute__ ((section(".ram2"), aligned(16)));
 static const DSHOTConfig dshotConfig3 = {
   .dma_stream = STM32_PWM3_UP_DMA_STREAM,
   .dma_channel = STM32_PWM3_UP_DMA_CHANNEL,
@@ -89,13 +89,14 @@ int main(void)
   initHeap();
   
   //  SCB_DisableDCache();
-  
+  chThdCreateStatic(waBlinker, sizeof(waBlinker), NORMALPRIO, blinker, NULL);  
   consoleInit();
   consoleLaunch();
+
   dshotStart(&dshotd3, &dshotConfig3);
   initSpy();
   
-  chThdCreateStatic(waBlinker, sizeof(waBlinker), NORMALPRIO, blinker, NULL);
+
 #if STRESS
   chThdCreateStatic(waMemoryStress, sizeof(waMemoryStress), NORMALPRIO, memoryStress, NULL);
   chThdCreateStatic(waDmaStress, sizeof(waDmaStress), NORMALPRIO, dmaStress, NULL);
@@ -104,9 +105,9 @@ int main(void)
 
   chThdCreateStatic(waPrinter, sizeof(waPrinter), NORMALPRIO, printer, NULL);
   
-  if ((((uint32_t)&dshotd3.config->uncached_dma_buf % 16)) == 0) {
+  if ((((uint32_t) dshotd3.config->uncached_dma_buf % 16)) == 0) {
     DebugTrace("dshotd3.config->uncached_dma_buf aligned 16");
-  } else if ((((uint32_t)&dshotd3.config->uncached_dma_buf % 8)) == 0) {
+  } else if ((((uint32_t) dshotd3.config->uncached_dma_buf % 8)) == 0) {
     DebugTrace("dshotd3.config->uncached_dma_buf aligned 8");
   } else {
     DebugTrace("dshotd3.config->uncached_dma_buf NOT aligned");

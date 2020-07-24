@@ -10,6 +10,10 @@
   ° connecter C0 sur led0 
 */
 
+#define GPT_TRIG FALSE
+#define ADC_WATCHDOG TRUE
+
+
 #define TIM6TRGO 0b1101
 #define VOLT_TO_ADC(x) ((uint32_t)((x/3.3f)*4095))
 
@@ -51,20 +55,31 @@ static noreturn void displayAdc (void *arg)
   }
 }
 
+#if GPT_TRIG
 static GPTConfig gpt6cfg1 = {
 			     .frequency =  1e4,
 			     .callback  =  NULL,
 			     .cr2       =  TIM_CR2_MMS_1,  /* MMS = 010 = TRGO on Update Event.        */
 			     .dier      =  0U
 };
+#endif
 
 static const ADCConversionGroup adcgrpcfg = {
   .circular	= TRUE,   // continuous conversion
   .num_channels = ADC_GRP1_NUM_CHANNELS,
   .end_cb	= &adc_cb, // adc completed callback,
   .error_cb	= &adcErrorCb, // adc error callback,
+
+#if ADC_WATCHDOG
   .cr1		= ADC_CR1_AWDSGL | ADC_CR1_AWDEN | ADC_CR1_AWDIE | (11 << ADC_CR1_AWDCH_Pos),
+#else
+  .cr1		= 0,
+#endif
+#if GPT_TRIG
   .cr2		= ADC_CR2_EXTEN_RISING | ADC_CR2_EXTSEL_SRC(TIM6TRGO),
+#else
+  .cr2		= ADC_CR2_SWSTART,
+#endif
   .smpr1	= ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_480) | ADC_SMPR1_SMP_AN11(ADC_SAMPLE_480),
   .smpr2	= 0,                        
   .htr		= VOLT_TO_ADC(2.0),
@@ -76,9 +91,11 @@ static const ADCConversionGroup adcgrpcfg = {
 
 void adcStressInit(void)
 {
+#if GPT_TRIG
   gptStart(&GPTD6, &gpt6cfg1);
   gptStartContinuous(&GPTD6, 5);
-
+#endif
+  
   adcStart(&ADCD1, NULL);
   
   // initialise le capteur interne de température
