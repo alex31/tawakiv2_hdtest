@@ -45,13 +45,15 @@ static const UARTConfig uartConfig =  {
 
 
 
-static DshotDmaBuffer dshotd3DmaBuffer __attribute__ ((section(".ram2"), aligned(16)));
+static DshotDmaBuffer dshotd3DmaBuffer __attribute__ ((section(".ram2"),
+						       aligned(32)));
 static const DSHOTConfig dshotConfig3 = {
-  .dma_stream = STM32_PWM3_UP_DMA_STREAM,
-  .dma_channel = STM32_PWM3_UP_DMA_CHANNEL,
-  .pwmp = &PWMD3,
+  .dma_stream = STM32_PWM2_UP_DMA_STREAM,
+  .dma_channel = STM32_PWM2_UP_DMA_CHANNEL,
+  .pwmp = &PWMD2,
   .tlm_sd = NULL,
-  .uncached_dma_buf = &dshotd3DmaBuffer
+  .dma_buf = &dshotd3DmaBuffer,
+  .dcache_memory_in_use = false
 };
 static DSHOTDriver dshotd3;
 
@@ -105,12 +107,14 @@ int main(void)
 
   chThdCreateStatic(waPrinter, sizeof(waPrinter), NORMALPRIO, printer, NULL);
   
-  if ((((uint32_t) dshotd3.config->uncached_dma_buf % 16)) == 0) {
-    DebugTrace("dshotd3.config->uncached_dma_buf aligned 16");
-  } else if ((((uint32_t) dshotd3.config->uncached_dma_buf % 8)) == 0) {
-    DebugTrace("dshotd3.config->uncached_dma_buf aligned 8");
+  if ((((uint32_t) dshotd3.config->dma_buf % 32)) == 0) {
+    DebugTrace("dshotd3.config->dma_buf aligned 32");
+  }  else if ((((uint32_t) dshotd3.config->dma_buf % 16)) == 0) {
+    DebugTrace("dshotd3.config->dma_buf aligned 16");
+  } else if ((((uint32_t) dshotd3.config->dma_buf % 8)) == 0) {
+    DebugTrace("dshotd3.config->dma_buf aligned 8");
   } else {
-    DebugTrace("dshotd3.config->uncached_dma_buf NOT aligned");
+    DebugTrace("dshotd3.config->dma_buf NOT aligned");
   }
 
   int32_t throttle = 50;
@@ -123,8 +127,8 @@ int main(void)
     // test dma buffer coherency
     /* for (int j=16; j<20; j++) */
     /*   for (int c=0; c<DSHOT_CHANNELS; c++) { */
-    /* 	if (dshotd3.config->uncached_dma_buf.widths32[j][c] != 0) { */
-    /* 	  DebugTrace("w32[%d][%d] = %u", j, c, dshotd3.config->uncached_dma_buf.widths32[j][c]); */
+    /* 	if (dshotd3.config->dma_buf.widths32[j][c] != 0) { */
+    /* 	  DebugTrace("w32[%d][%d] = %u", j, c, dshotd3.config->dma_buf.widths32[j][c]); */
     /* 	} */
     /*   } */
 
