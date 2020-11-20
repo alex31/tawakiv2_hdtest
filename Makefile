@@ -6,18 +6,30 @@
 # Compiler options here.
 # -Wdouble-promotion -fno-omit-frame-pointer
 
+GCCVERSIONGTEQ10 := $(shell expr `arm-none-eabi-gcc -dumpversion | cut -f1 -d.` \>= 10)
 GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
-	    -Wno-error=unused-function \
-	    -Wunused -Wpointer-arith \
-	    -Werror=sign-compare \
-	    -Wshadow -Wparentheses \
-	    -ftrack-macro-expansion=2 -Wno-error=strict-overflow -Wstrict-overflow=5 \
-	    -Wvla-larger-than=128 -Wduplicated-branches -Wdangling-else \
-            -Wformat-overflow=2 -Wno-error=stringop-truncation
+	    -Wno-error=cpp -Wno-error=type-limits \
+            -Wno-error=unused-function \
+            -Wunused -Wpointer-arith \
+            -Werror=sign-compare \
+            -Wshadow -Wparentheses -fmax-errors=5 \
+            -ftrack-macro-expansion=2 -Wno-error=strict-overflow -Wstrict-overflow=2 \
+            -Wvla-larger-than=128 -Wduplicated-branches -Wdangling-else \
+	    -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches \
+            -Wlogical-op -Wformat-overflow=2
 
+G++_DIAG =   -Wnon-virtual-dtor -Woverloaded-virtual   \
+	     -Wnull-dereference
 
-ifeq ($(USE_OPT),)
-  USE_OPT =  -O0  -ggdb3  -Wall -Wextra \
+ifeq "$(GCCVERSIONGTEQ10)" "1"
+    GCC_DIAG += -Wno-error=volatile 
+    G++_DIAG += -Wno-volatile -Wno-error=deprecated-declarations
+endif
+
+UNUSED_DIAGS = -Wcast-align -Wsign-conversion -Wconversion
+
+ifeq ($(BUILD),$(OPT_DEBUG)) 
+  USE_OPT =  -Og -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	    $(GCC_DIAG) -DCH_DBG_ENABLE_ASSERTS=1
 endif
@@ -39,7 +51,7 @@ endif
 
 # C++ specific options here (added to USE_OPT).
 ifeq ($(USE_CPPOPT),)
-  USE_CPPOPT = -std=c++17 -fno-rtti -fno-exceptions 
+  USE_CPPOPT = -std=gnu++2a -fno-rtti -fno-exceptions -fno-threadsafe-statics $(G++_DIAG)
 endif
 
 
@@ -84,9 +96,14 @@ ifeq ($(USE_EXCEPTIONS_STACKSIZE),)
   USE_EXCEPTIONS_STACKSIZE = 0x400
 endif
 
-# Enables the use of FPU on Cortex-M4 (no, softfp, hard).
+# Enables the use of FPU (no, softfp, hard).
 ifeq ($(USE_FPU),)
   USE_FPU = hard
+endif
+
+# FPU-related options.
+ifeq ($(USE_FPU_OPT),)
+  USE_FPU_OPT = -mfloat-abi=$(USE_FPU) -mfpu=fpv5-d16
 endif
 
 #
@@ -100,48 +117,51 @@ endif
 # Define project name here
 PROJECT = ch
 BOARD = DEVBOARDM7
+MCU  = cortex-m7
 
 # Imported source files and paths
-MY_DIRNAME=../../../ChibiOS_stable
+MY_DIRNAME=../../../ChibiOS_20.3_stable
 ifneq "$(wildcard $(MY_DIRNAME) )" ""
    RELATIVE=../../..
 else
   RELATIVE=../..
 endif
-CHIBIOS = $(RELATIVE)/ChibiOS_stable
+CHIBIOS = $(RELATIVE)/ChibiOS_20.3_stable
 STMSRC = $(RELATIVE)/COMMON/stm
 VARIOUS = $(RELATIVE)/COMMON/various
 USBD_LIB = $(VARIOUS)/Chibios-USB-Devices
+USBD_LIB   := $(VARIOUS)/Chibios-USB-Devices
+TOOLDIR    := $(VARIOUS)/TOOLS
+
+CONFDIR    := ./cfg
+BUILDDIR   := ./build
+DEPDIR     := ./.dep
 
 
-
-
+# Licensing files.
+include $(CHIBIOS)/os/license/license.mk
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f7xx.mk
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F7xx/platform.mk
-include local/$(BOARD)/board.mk
-include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+include cfg/board.mk
+include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+# Auto-build files in ./source recursively.
+include $(CHIBIOS)/tools/mk/autobuild.mk
 # Other files (optional).
 
 
 # Define linker script file here
-LDSCRIPT= local/STM32F76xxI.ld
+LDSCRIPT= ${STARTUPLD}/STM32F76xxI.ld
 
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CSRC = $(STARTUPSRC) \
-       $(KERNSRC) \
-       $(PORTSRC) \
-       $(OSALSRC) \
-       $(HALSRC) \
-       $(PLATFORMSRC) \
-       $(BOARDSRC) \
+CSRC = $(ALLCSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        $(VARIOUS)/stdutil.c \
        $(VARIOUS)/printf.c \
@@ -151,16 +171,13 @@ CSRC = $(STARTUPSRC) \
        $(VARIOUS)/hal_stm32_dma.c \
        $(VARIOUS)/simpleSerialMessage.c \
        $(VARIOUS)/esc_dshot.c \
-       $(VARIOUS)/adcHelper.c \
-       ttyConsole.c \
-       globalVar.c \
-       icu_spy.c \
-       adc_stress.c \
-       main.c
+       $(VARIOUS)/adcHelper.c
+
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-CPPSRC =
+CPPSRC = $(ALLCPPSRC)
+
 
 # C sources to be compiled in ARM mode regardless of the global setting.
 # NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
@@ -185,9 +202,9 @@ TCPPSRC =
 # List ASM source files here
 ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
-INCDIR = $(CHIBIOS)/os/license $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(TESTINC) \
-         $(CHIBIOS)/os/various $(VARIOUS)
+INCDIR = $(CONFDIR) $(ALLINC) \
+         $(CHIBIOS)/os/various $(VARIOUS) \
+	 $(EXTLIB)
 
 #
 # Project, sources and paths
@@ -240,7 +257,9 @@ CPPWARN = -Wall -Wextra -Wundef
 UDEFS = -DTRACE
 
 # Define ASM defines here
-UADEFS =
+UADEFS = $(UDEFS)
+
+
 
 # List all user directories here
 UINCDIR =
@@ -256,12 +275,13 @@ ULIBS =
 ##############################################################################
 
 
-RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
+RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk
+include $(RULESPATH)/arm-none-eabi.mk
 include $(RULESPATH)/rules.mk
-$(OBJS): local/$(BOARD)/board.h
+$(OBJS): $(CONFDIR)/board.h
 
-local/$(BOARD)/board.h: local/$(BOARD)/board.cfg
-	boardGen.pl	$<  $@
+$(CONFDIR)/board.h: $(CONFDIR)/board.cfg
+	$(TOOLDIR)/boardGen.pl $<  $@ 
 
 
 stflash: all
