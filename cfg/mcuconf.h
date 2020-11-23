@@ -398,8 +398,8 @@
  * UART driver system settings.
  */
 #define STM32_UART_USE_USART1               FALSE /* DMA OK */
-#define STM32_UART_USE_USART2               TRUE  /* NO DMA AVAIL */
-#define STM32_UART_USE_USART3               FALSE /* DMA OK */
+#define STM32_UART_USE_USART2               FALSE  /* NO DMA AVAIL */
+#define STM32_UART_USE_USART3               TRUE /* DMA OK */
 #define STM32_UART_USE_UART4                FALSE /* NO DMA AVAIL */
 #define STM32_UART_USE_UART5                FALSE /* NO DMA AVAIL */
 #define STM32_UART_USE_USART6               FALSE /* NO DMA AVAIL */

@@ -28,7 +28,7 @@
 #define BENCH_TELEMETRY_BAUD		115200
 #define USE_DSHOT2 0
 #define USE_DSHOT3 1
-#define USE_DSHOT4 0
+#define USE_DSHOT4 1
 
 
 #if STRESS
@@ -333,12 +333,12 @@ static noreturn void dmaStress (void *arg)
   DebugTrace("dma stress addr = %p", stress);
   size_t nb=sizeof(stress);
   
-  uartStart(&UARTD2, &uartConfig);
+  uartStart(&UARTD3, &uartConfig);
   
   while (true) {
     stress[cnt % ARRAY_LEN(stress)] = stress[(cnt+200 ) % ARRAY_LEN(stress)] +1;
     //    chThdSleepMilliseconds(10);
-    uartSendTimeout(&UARTD2, &nb, &stress, TIME_INFINITE);
+    uartSendTimeout(&UARTD3, &nb, &stress, TIME_INFINITE);
   }
 }
 #endif
