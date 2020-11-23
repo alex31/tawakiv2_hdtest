@@ -28,6 +28,7 @@
 #define BENCH_TELEMETRY_BAUD		115200
 #define USE_DSHOT2 0
 #define USE_DSHOT3 1
+#define USE_DSHOT4 0
 
 
 #if STRESS
@@ -53,6 +54,10 @@ static DshotDmaBuffer IN_DMA_SECTION_NOINIT(dshotd2DmaBuffer);
 static DshotDmaBuffer IN_DMA_SECTION_NOINIT(dshotd3DmaBuffer);
 #endif
 
+#if USE_DSHOT4
+static DshotDmaBuffer IN_DMA_SECTION_NOINIT(dshotd4DmaBuffer);
+#endif
+
 #if USE_DSHOT2
 static const DSHOTConfig dshotConfig2 = {
   .dma_stream = STM32_PWM2_UP_DMA_STREAM,
@@ -75,7 +80,18 @@ static const DSHOTConfig dshotConfig3 = {
   .dcache_memory_in_use = false
 };
 static DSHOTDriver dshotd3;
+#endif
 
+#if USE_DSHOT4
+static const DSHOTConfig dshotConfig4 = {
+  .dma_stream = STM32_PWM4_UP_DMA_STREAM,
+  .dma_channel = STM32_PWM4_UP_DMA_CHANNEL,
+  .pwmp = &PWMD4,
+  .tlm_sd = NULL,
+  .dma_buf = &dshotd4DmaBuffer,
+  .dcache_memory_in_use = false
+};
+static DSHOTDriver dshotd4;
 #endif
 
 
@@ -126,8 +142,13 @@ int main(void)
 #if USE_DSHOT3
   dshotStart(&dshotd3, &dshotConfig3);
 #endif
-  
+
+#if USE_DSHOT4
+  dshotStart(&dshotd4, &dshotConfig4);
+#endif
+   
   initSpy();
+
   
 
 #if STRESS
@@ -159,8 +180,22 @@ int main(void)
   } else {
     DebugTrace("dshotd3.config->dma_buf NOT aligned");
   }
- 
 #endif
+#if USE_DSHOT4
+   if ((((uint32_t) dshotd4.config->dma_buf % 32)) == 0) {
+    DebugTrace("dshotd4.config->dma_buf aligned 32");
+  }  else if ((((uint32_t) dshotd4.config->dma_buf % 16)) == 0) {
+    DebugTrace("dshotd4.config->dma_buf aligned 16");
+  } else if ((((uint32_t) dshotd4.config->dma_buf % 8)) == 0) {
+    DebugTrace("dshotd4.config->dma_buf aligned 8");
+  } else {
+    DebugTrace("dshotd4.config->dma_buf NOT aligned");
+  }
+#endif
+
+
+
+   
   int32_t throttle = 50;
   while (true) {
     for (size_t i=0; i<DSHOT_CHANNELS; i++) {
@@ -170,6 +205,9 @@ int main(void)
 #if USE_DSHOT3
       dshotSetThrottle(&dshotd3, i, throttle+i);
 #endif
+#if USE_DSHOT4
+      dshotSetThrottle(&dshotd4, i, throttle+i);
+#endif
     }
 #if USE_DSHOT2
     dshotSendFrame(&dshotd2);
@@ -177,7 +215,10 @@ int main(void)
 #if USE_DSHOT3    
     dshotSendFrame(&dshotd3);
 #endif
-    // test dma buffer coherency
+#if USE_DSHOT4    
+    dshotSendFrame(&dshotd4);
+#endif
+     // test dma buffer coherency
     /* for (int j=16; j<20; j++) */
     /*   for (int c=0; c<DSHOT_CHANNELS; c++) { */
     /* 	if (dshotd2.config->dma_buf.widths32[j][c] != 0) { */
@@ -252,6 +293,16 @@ static noreturn void blinker (void *arg)
 	       dshotd3.dmap.nbFifoError,
 	       dshotd3.dmap.nbFifoEmpty,
 	       dshotd3.dmap.nbFifoFull
+	       );
+#endif 
+#if USE_DSHOT4   
+    DebugTrace("D4 Ok:%lu Ko:%lu [%.2f %%] Ter=%u  DMer=%u Fer=%u FEmp=%u FFu=%u",
+	       sumOk, sum17, sum17*100.0f/(sumOk+sum17),
+	       dshotd4.dmap.nbTransferError,
+	       dshotd4.dmap.nbDirectModeError,
+	       dshotd4.dmap.nbFifoError,
+	       dshotd4.dmap.nbFifoEmpty,
+	       dshotd4.dmap.nbFifoFull
 	       );
 #endif 
    }
