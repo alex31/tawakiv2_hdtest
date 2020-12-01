@@ -198,7 +198,8 @@ int main(void)
    
   int32_t throttle = 50;
   while (true) {
-    for (size_t i=0; i<DSHOT_CHANNELS; i++) {
+    for (size_t i= DSHOT_CHANNEL_FIRST_INDEX; i<DSHOT_CHANNELS+DSHOT_CHANNEL_FIRST_INDEX; i++) {
+      //for (size_t i= 0; i<DSHOT_CHANNELS; i++) {
 #if USE_DSHOT2
       dshotSetThrottle(&dshotd2, i, throttle+i);
 #endif
