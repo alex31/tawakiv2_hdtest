@@ -458,6 +458,6 @@
 #define CH_HEAP_SIZE (32*1024)
 #define CH_HEAP_USE_TLSF 0 // if 0 or undef, chAlloc will be used
 #define CONSOLE_DEV_SD SD1
-
+#define SHELL_DYNAMIC_ENTRIES_NUMBER 4U
 
 #endif /* _MCUCONF_H_ */

@@ -23,10 +23,10 @@ static void cmd_rtc(BaseSequentialStream *lchp, int argc,const char * const argv
 static void cmd_uid(BaseSequentialStream *lchp, int argc,const char * const argv[]);
 
 static const ShellCommand commands[] = {
-  {"mem", cmd_mem},
   {"threads", cmd_threads},
   {"rtc", cmd_rtc},
   {"uid", cmd_uid},
+  {"mem", cmd_mem},
   {NULL, NULL}
 };
 
