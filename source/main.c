@@ -14,7 +14,7 @@ static volatile systime_t waitled = TIME_MS2I(500);
 
 static THD_WORKING_AREA(waBlinker, 512);
 static noreturn void blinker (void *arg);
-static shellcmd_f cmd_mem, cmd_period;
+static shellcmd_f cmd_mem, cmd_period,  cmd_period2;
 
 static const SerialConfig ftdiConfig =  {
   115200,
@@ -51,7 +51,7 @@ int main(void)
   
   sdStart(&CONSOLE_DEV_SD, &ftdiConfig);
   shellInit();
-  thread_t * shelltp = shellCreate(&shell_cfg, 2048U, NORMALPRIO);
+  thread_t * shelltp = shellCreateFromHeap(&shell_cfg, 2048U, NORMALPRIO);
   chprintf((BaseSequentialStream *) &CONSOLE_DEV_SD, "shell launched ptr = %p\r\n",
 	   shelltp);
   // dynamic entry
@@ -83,6 +83,21 @@ static noreturn void blinker (void *arg)
 
 
 static void cmd_period(BaseSequentialStream *lchp, int argc,const char * const argv[]) {
+  (void)argv;
+  if (argc < 1) {
+    chprintf (lchp, "period arg (milliseconds)\r\n");
+  } else {
+    const systime_t tm = TIME_MS2I(atoi(argv[0]));
+    if (tm != 0) {
+    waitled = tm;
+    shellAddEntry((ShellCommand){"period2", &cmd_period2});
+    } else {
+      DebugTrace("null wait period forbidden");
+    }
+  }
+}
+
+static void cmd_period2(BaseSequentialStream *lchp, int argc,const char * const argv[]) {
   (void)argv;
   if (argc < 1) {
     chprintf (lchp, "period arg (milliseconds)\r\n");
