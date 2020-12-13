@@ -105,6 +105,7 @@ static void cmd_period2(BaseSequentialStream *lchp, int argc,const char * const 
     const systime_t tm = TIME_MS2I(atoi(argv[0]));
     if (tm != 0) {
     waitled = tm;
+    shellAddEntry((ShellCommand){"period2", NULL});
     } else {
       DebugTrace("null wait period forbidden");
     }
