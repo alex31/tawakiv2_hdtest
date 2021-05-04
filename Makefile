@@ -29,7 +29,7 @@ endif
 UNUSED_DIAGS = -Wcast-align -Wsign-conversion -Wconversion
 
 ifeq ($(BUILD),$(OPT_DEBUG)) 
-  USE_OPT =  -Og -ggdb3  -Wall -Wextra \
+  USE_OPT =  -O0 -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
 	    $(GCC_DIAG) -DCH_DBG_ENABLE_ASSERTS=1
 endif
@@ -169,7 +169,7 @@ CSRC = $(ALLCSRC) \
        $(VARIOUS)/microrl/microrl.c \
        $(VARIOUS)/rtcAccess.c \
        $(VARIOUS)/hal_stm32_dma.c \
-       $(VARIOUS)/simpleSerialMessage.c \
+       $(VARIOUS)/serial_message/simpleSerialMessage.c \
        $(VARIOUS)/esc_dshot.c \
        $(VARIOUS)/adcHelper.c
 
@@ -281,7 +281,7 @@ include $(RULESPATH)/rules.mk
 $(OBJS): $(CONFDIR)/board.h
 
 $(CONFDIR)/board.h: $(CONFDIR)/board.cfg
-	$(TOOLDIR)/boardGen.pl $<  $@ 
+	$(TOOLDIR)/boardGen.pl --no-pp-line $<  $@ 
 
 
 stflash: all
