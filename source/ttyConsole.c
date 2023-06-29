@@ -9,7 +9,6 @@
 #include "stdutil.h"
 #include "rtcAccess.h"
 #include "printf.h"
-#include "portage.h"
 
 
 /*===========================================================================*/
@@ -42,7 +41,7 @@ static const ShellCommand commands[] = {
 
 #define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(4096)
 
-#ifndef CONSOLE_DEV_USB
+#if !defined CONSOLE_DEV_USB || CONSOLE_DEV_USB == false
 static const SerialConfig ftdiConfig =  {
   115200,
   0,
@@ -174,7 +173,7 @@ static void cmd_mem(BaseSequentialStream *lchp, int argc,const char * const argv
     return;
   }
 
-  chprintf (lchp, "core free memory : %u bytes\r\n", chCoreStatus());
+  chprintf (lchp, "core free memory : %u bytes\r\n", chCoreGetStatusX());
   chprintf (lchp, "heap free memory : %u bytes\r\n", getHeapFree());
 
   void * ptr1 = malloc_m (100);
@@ -191,8 +190,8 @@ static void cmd_mem(BaseSequentialStream *lchp, int argc,const char * const argv
 
 
 static void cmd_threads(BaseSequentialStream *lchp, int argc,const char * const argv[]) {
-  static const char *states[] = {THD_STATE_NAMES};
-  Thread *tp = chRegFirstThread();
+  static const char *states[] = {CH_STATE_NAMES};
+  thread_t *tp = chRegFirstThread();
   (void)argv;
   (void)argc;
   float totalTicks=0;
@@ -215,11 +214,11 @@ static void cmd_threads(BaseSequentialStream *lchp, int argc,const char * const 
 	      (uint32_t)tp->hdr.pqueue.prio, (uint32_t)(tp->refs - 1),
 	      states[tp->state], (uint32_t)tp->time, 
 	      stampThreadGetCpuPercent (&threadCpuInfo, idx),
-	      chRegGetThreadName(tp));
+	      chRegGetThreadNameX(tp));
     totalTicks+= (float) tp->time;
-    if (strcmp (chRegGetThreadName(tp), "idle") == 0)
+    if (strcmp (chRegGetThreadNameX(tp), "idle") == 0)
       idleTicks =  (float) tp->time;
-    tp = chRegNextThread ((Thread *)tp);
+    tp = chRegNextThread ((thread_t *)tp);
     idx++;
   } while (tp != NULL);
 
@@ -230,7 +229,7 @@ static void cmd_threads(BaseSequentialStream *lchp, int argc,const char * const 
 
 
 static const ShellConfig shell_cfg1 = {
-#ifndef CONSOLE_DEV_USB
+#if ! defined CONSOLE_DEV_USB || CONSOLE_DEV_USB == false
   (BaseSequentialStream *) &CONSOLE_DEV_SD,
 #else
   (BaseSequentialStream *) &SDU1,
@@ -247,8 +246,8 @@ void consoleInit (void)
    * USBD1 : FS, USBD2 : HS
    */
 
-#ifdef CONSOLE_DEV_USB
-  usbSerialInit(&SDU1, &USBDRIVER); 
+#if defined CONSOLE_DEV_USB && CONSOLE_DEV_USB == true
+  usbSerialInit(&SDU1, &USBD1); 
   chp = (BaseSequentialStream *) &SDU1;
 #else
   sdStart(&CONSOLE_DEV_SD, &ftdiConfig);
@@ -263,12 +262,12 @@ void consoleInit (void)
 
 void consoleLaunch (void)
 {
-  Thread *shelltp = NULL;
+  thread_t *shelltp = NULL;
 
   if (!shelltp) {
     //       palSetPad (BOARD_LED3_P, BOARD_LED3);
     shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO);
-  } else if (chThdTerminated(shelltp)) {
+  } else if (chThdTerminatedX(shelltp)) {
     chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
     shelltp = NULL;           /* Triggers spawning of a new shell.        */
     //       palClearPad (BOARD_LED3_P, BOARD_LED3);
@@ -278,7 +277,7 @@ void consoleLaunch (void)
 
 static void stampThreadCpuInfo (ThreadCpuInfo *ti)
 {
-  const Thread *tp =  chRegFirstThread();
+  const thread_t *tp =  chRegFirstThread();
   uint32_t idx=0;
   
   float totalTicks =0;
@@ -286,7 +285,7 @@ static void stampThreadCpuInfo (ThreadCpuInfo *ti)
     totalTicks+= (float) tp->time;
     ti->cpu[idx] = (float) tp->time - ti->ticks[idx];;
     ti->ticks[idx] = (float) tp->time;
-    tp = chRegNextThread ((Thread *)tp);
+    tp = chRegNextThread ((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < MAX_CPU_INFO_ENTRIES));
   
@@ -297,7 +296,7 @@ static void stampThreadCpuInfo (ThreadCpuInfo *ti)
   idx=0;
   do {
     ti->cpu[idx] =  (ti->cpu[idx]*100.f)/diffTotal;
-    tp = chRegNextThread ((Thread *)tp);
+    tp = chRegNextThread ((thread_t *)tp);
     idx++;
   } while ((tp != NULL) && (idx < MAX_CPU_INFO_ENTRIES));
 }
