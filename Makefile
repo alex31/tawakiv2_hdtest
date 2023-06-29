@@ -120,13 +120,13 @@ BOARD = DEVBOARDM7
 MCU  = cortex-m7
 
 # Imported source files and paths
-MY_DIRNAME=../../../ChibiOS_20.3_stable
+MY_DIRNAME=../../../ChibiOS_21.11_stable
 ifneq "$(wildcard $(MY_DIRNAME) )" ""
    RELATIVE=../../..
 else
   RELATIVE=../..
 endif
-CHIBIOS = $(RELATIVE)/ChibiOS_20.3_stable
+CHIBIOS  := $(RELATIVE)/$(notdir $(MY_DIRNAME))
 STMSRC = $(RELATIVE)/COMMON/stm
 VARIOUS = $(RELATIVE)/COMMON/various
 USBD_LIB = $(VARIOUS)/Chibios-USB-Devices
@@ -149,7 +149,7 @@ include cfg/board.mk
 include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/common/ports/ARMv7-M/compilers/GCC/mk/port.mk
 # Auto-build files in ./source recursively.
 include $(CHIBIOS)/tools/mk/autobuild.mk
 # Other files (optional).
