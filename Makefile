@@ -116,7 +116,7 @@ endif
 
 # Define project name here
 PROJECT = ch
-BOARD = DEVBOARDM7
+BOARD = TAWAKI_V200
 MCU  = cortex-m7
 
 # Imported source files and paths
@@ -141,11 +141,11 @@ DEPDIR     := ./.dep
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
 # Startup files.
-include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f7xx.mk
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32h7xx.mk
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/hal/ports/STM32/STM32F7xx/platform.mk
-include cfg/board.mk
+include $(CHIBIOS)/os/hal/ports/STM32/STM32H7xx/platform.mk
+include $(CONFDIR)/board.mk
 include $(CHIBIOS)/os/hal/osal/rt-nil/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
@@ -156,7 +156,7 @@ include $(CHIBIOS)/tools/mk/autobuild.mk
 
 
 # Define linker script file here
-LDSCRIPT= ${STARTUPLD}/STM32F76xxI.ld
+LDSCRIPT= $(STARTUPLD)/STM32H743xI.ld
 
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
@@ -169,84 +169,36 @@ CSRC = $(ALLCSRC) \
        $(VARIOUS)/microrl/microrl.c \
        $(VARIOUS)/rtcAccess.c \
        $(VARIOUS)/hal_stm32_dma.c \
-       $(VARIOUS)/serial_message/simpleSerialMessage.c \
-       $(VARIOUS)/esc_dshot.c \
-       $(VARIOUS)/adcHelper.c
+       $(VARIOUS)/serial_message/simpleSerialMessage.c 
+
 
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CPPSRC = $(ALLCPPSRC)
 
+# List ASM source files here.
+ASMSRC = $(ALLASMSRC)
 
-# C sources to be compiled in ARM mode regardless of the global setting.
-# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
-#       option that results in lower performance and larger code size.
-ACSRC =
+# List ASM with preprocessor source files here.
+ASMXSRC = $(ALLXASMSRC)
 
-# C++ sources to be compiled in ARM mode regardless of the global setting.
-# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
-#       option that results in lower performance and larger code size.
-ACPPSRC =
-
-# C sources to be compiled in THUMB mode regardless of the global setting.
-# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
-#       option that results in lower performance and larger code size.
-TCSRC =
-
-# C sources to be compiled in THUMB mode regardless of the global setting.
-# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
-#       option that results in lower performance and larger code size.
-TCPPSRC =
-
-# List ASM source files here
-ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
-
-INCDIR = $(CONFDIR) $(ALLINC) \
-         $(CHIBIOS)/os/various $(VARIOUS) \
+# Inclusion directories.
+INCDIR = $(CONFDIR) $(ALLINC) $(CHIBIOS)/os/various $(VARIOUS) \
 	 $(EXTLIB)
 
 #
 # Project, sources and paths
 ##############################################################################
 
-##############################################################################
-# Compiler settings
-#
-
-MCU  = cortex-m7
-
-#TRGT = arm-elf-
-TRGT = arm-none-eabi-
-CC   = $(TRGT)gcc
-CPPC = $(TRGT)g++
-# Enable loading with g++ only if you need C++ runtime support.
-# NOTE: You can use C++ even without C++ support if you are careful. C++
-#       runtime support makes code size explode.
-LD   = $(TRGT)gcc
-#LD   = $(TRGT)g++
-CP   = $(TRGT)objcopy
-AS   = $(TRGT)gcc -x assembler-with-cpp
-AR   = $(TRGT)ar
-OD   = $(TRGT)objdump
-SZ   = $(TRGT)size
-HEX  = $(CP) -O ihex
-BIN  = $(CP) -O binary
-
-# ARM-specific options here
-AOPT =
-
-# THUMB-specific options here
-TOPT = -mthumb -DTHUMB
-
-# Define C warning options here
+# Define C warning options here.
 CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
 
-# Define C++ warning options here
+# Define C++ warning options here.
 CPPWARN = -Wall -Wextra -Wundef
 
 #
-# Compiler settings
+# Project, target, sources and paths
 ##############################################################################
 
 ##############################################################################

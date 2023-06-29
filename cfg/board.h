@@ -19,8 +19,8 @@
 /*
  * Board identifier.
  */
-#define BOARD_TAWAKI
-#define BOARD_NAME                  "Tawaki Autopilot"
+#define BOARD_TAWAKI_V2
+#define BOARD_NAME                  "Tawaki V2Autopilot"
 
 /*
  * Board oscillators-related settings.
@@ -32,7 +32,8 @@
 #define STM32_LSEDRV                (3U << 3U)
 
 #if !defined(STM32_HSECLK)
-#define STM32_HSECLK                16000000U
+#define STM32_HSECLK                8000000U
+#define STM32_HSE_BYPASS            TRUE
 #endif
 
 /*
@@ -44,7 +45,8 @@
 /*
  * MCU type as defined in the ST header.
  */
-#define STM32F777xx
+#define STM32H743xx
+#define STM32H753xx
 
 /*
  * IO pins assignments.
@@ -392,8 +394,8 @@
 					 PIN_PUPDR_FLOATING(PA10_LED2) | \
 					 PIN_PUPDR_FLOATING(PA11_OTG_FS_DM) | \
 					 PIN_PUPDR_FLOATING(PA12_OTG_FS_DP) | \
-					 PIN_PUPDR_FLOATING(PA13_SWDIO) | \
-					 PIN_PUPDR_FLOATING(PA14_SWCLK) | \
+					 PIN_PUPDR_PULLUP(PA13_SWDIO) | \
+					 PIN_PUPDR_PULLUP(PA14_SWCLK) | \
 					 PIN_PUPDR_FLOATING(PA15_UART7_TX))
 
 #define VAL_GPIOA_ODR                   (PIN_ODR_LEVEL_HIGH(PA00_AUX_A1) | \
@@ -429,7 +431,7 @@
 					 PIN_AFIO_AF(PA12_OTG_FS_DP, 10) | \
 					 PIN_AFIO_AF(PA13_SWDIO, 0) | \
 					 PIN_AFIO_AF(PA14_SWCLK, 0) | \
-					 PIN_AFIO_AF(PA15_UART7_TX, 12))
+					 PIN_AFIO_AF(PA15_UART7_TX, 11))
 
 #define VAL_GPIOB_MODER                 (PIN_MODE_INPUT(PB00_AUX_B3) | \
 					 PIN_MODE_INPUT(PB01_AUX_B4) | \
@@ -519,9 +521,9 @@
 #define VAL_GPIOB_AFRL			(PIN_AFIO_AF(PB00_AUX_B3, 0) | \
 					 PIN_AFIO_AF(PB01_AUX_B4, 0) | \
 					 PIN_AFIO_AF(PB02, 0) | \
-					 PIN_AFIO_AF(PB03_UART7_RX, 12) | \
+					 PIN_AFIO_AF(PB03_UART7_RX, 11) | \
 					 PIN_AFIO_AF(PB04, 0) | \
-					 PIN_AFIO_AF(PB05_DSHOT_RX, 1) | \
+					 PIN_AFIO_AF(PB05_DSHOT_RX, 14) | \
 					 PIN_AFIO_AF(PB06_SRVB1, 2) | \
 					 PIN_AFIO_AF(PB07_SRVB2, 2))
 
@@ -1469,12 +1471,12 @@
 #define AF_LINE_SWDIO                    0U
 #define AF_PA14_SWCLK                    0U
 #define AF_LINE_SWCLK                    0U
-#define AF_PA15_UART7_TX                 12U
-#define AF_LINE_UART7_TX                 12U
-#define AF_PB03_UART7_RX                 12U
-#define AF_LINE_UART7_RX                 12U
-#define AF_PB05_DSHOT_RX                 1U
-#define AF_LINE_DSHOT_RX                 1U
+#define AF_PA15_UART7_TX                 11U
+#define AF_LINE_UART7_TX                 11U
+#define AF_PB03_UART7_RX                 11U
+#define AF_LINE_UART7_RX                 11U
+#define AF_PB05_DSHOT_RX                 14U
+#define AF_LINE_DSHOT_RX                 14U
 #define AF_PB06_SRVB1                    2U
 #define AF_LINE_SRVB1                    2U
 #define AF_PB07_SRVB2                    2U
@@ -1553,14 +1555,14 @@
 #define AUX_A2_USART	 2
 #define AUX_A2_USART_FN	 RTS
 #define AUX_A2_USART_AF	 7
-#define AUX_A3_TIM	 9
+#define AUX_A3_TIM	 15
 #define AUX_A3_TIM_FN	 CH
 #define AUX_A3_TIM_CH	 1
-#define AUX_A3_TIM_AF	 3
-#define AUX_B1_TIM	 9
+#define AUX_A3_TIM_AF	 4
+#define AUX_B1_TIM	 15
 #define AUX_B1_TIM_FN	 CH
 #define AUX_B1_TIM_CH	 2
-#define AUX_B1_TIM_AF	 3
+#define AUX_B1_TIM_AF	 4
 #define AUX_A4_TIM	 13
 #define AUX_A4_TIM_FN	 CH
 #define AUX_A4_TIM_CH	 1
@@ -1571,7 +1573,22 @@
 #define AUX_B2_TIM_AF	 9
 #define RC2_USART	 6
 #define RC2_USART_FN	 TX
-#define RC2_USART_AF	 8
+#define RC2_USART_AF	 7
+
+#define BOARD_GROUP_DECLFOREACH(line, group) \
+  static const ioline_t group ## _ARRAY[] = {group}; \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+#define BOARD_GROUP_FOREACH(line, group) \
+  for (ioline_t i=0, line =  group ## _ARRAY[i]; (i < group ## _SIZE) && (line = group ## _ARRAY[i]); i++)
+
+
+#define BOARD_GROUP_DECLFOR(array, index, group)  \
+  static const ioline_t group ## _ARRAY[] = {group};    \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define BOARD_GROUP_FOR(array, index, group)  \
+  for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
