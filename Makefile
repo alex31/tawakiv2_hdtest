@@ -6,6 +6,14 @@
 # Compiler options here.
 # -Wdouble-promotion -fno-omit-frame-pointer
 
+DEBUG := 1
+OPT_SPEED := 2
+OPT_SIZE := 3
+
+EXECMODE := $(DEBUG)
+#EXECMODE := $(OPT_SPEED)
+#EXECMODE := $(OPT_SIZE)
+
 GCCVERSIONGTEQ10 := $(shell expr `arm-none-eabi-gcc -dumpversion | cut -f1 -d.` \>= 10)
 GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
 	    -Wno-error=cpp -Wno-error=type-limits \
@@ -28,20 +36,32 @@ endif
 
 UNUSED_DIAGS = -Wcast-align -Wsign-conversion -Wconversion
 
-ifeq ($(BUILD),$(OPT_DEBUG)) 
-  USE_OPT =  -O0 -ggdb3  -Wall -Wextra \
+ifeq ($(EXECMODE),$(DEBUG)) 
+  USE_OPT =  -Og  -ggdb3  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-	    $(GCC_DIAG) -DCH_DBG_ENABLE_ASSERTS=1
+	    $(GCC_DIAG)
+  USE_LTO = no
 endif
-ifeq ($(USE_OPT),)
-  USE_OPT =  -O2 -Wall -Wextra \
-	    -falign-functions=16 -fomit-frame-pointer \
-	     $(GCC_DIAG) -DCH_DBG_ENABLE_ASSERTS=0
+
+ifeq ($(EXECMODE),$(OPT_SPEED)) 
+  USE_OPT =  -Ofast -flto -Wall -Wextra \
+         -falign-functions=16 -fomit-frame-pointer \
+         -DCH_DBG_SYSTEM_STATE_CHECK=0 -DCH_DBG_ENABLE_CHECKS=0 \
+         -DCH_DBG_ENABLE_ASSERTS=0 -DCH_DBG_ENABLE_STACK_CHECK=0 \
+         -DCH_DBG_FILL_THREADS=0 \
+          $(GCC_DIAG)
+  USE_LTO = yes
 endif
-ifeq ($(USE_OPT),)
-  USE_OPT =  -Ofast -flto  -Wall -Wextra \
+
+ifeq ($(EXECMODE),$(OPT_SIZE)) 
+  USE_OPT =  -Os -flto  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-	     $(GCC_DIAG) -DCH_DBG_ENABLE_ASSERTS=1
+            --specs=nano.specs \
+            -DCH_DBG_SYSTEM_STATE_CHECK=0 -DCH_DBG_ENABLE_CHECKS=0 \
+            -DCH_DBG_ENABLE_ASSERTS=0 -DCH_DBG_ENABLE_STACK_CHECK=0 \
+            -DCH_DBG_FILL_THREADS=0 \
+	    $(GCC_DIAG)
+	USE_LTO = yes
 endif
 
 # C specific options here (added to USE_OPT).
