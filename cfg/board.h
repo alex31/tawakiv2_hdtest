@@ -1601,6 +1601,13 @@
 #define BOARD_GROUP_FOR(array, index, group)  \
   for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
 
+#define LINE_LEDS_GROUP \
+	LINE_LED1, \
+	LINE_LED2, \
+	LINE_LED4, \
+	LINE_LED3
+#define LINE_LEDS_GROUP_SIZE 	 4
+
 #define LINE_CONTINUITY_GROUP \
 	LINE_AUX_A1, \
 	LINE_AUX_A2, \

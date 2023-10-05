@@ -215,6 +215,9 @@ const Inv3Config icmCfg =  {
 };
 static Inv3Driver inv3d;
 
+static THD_WORKING_AREA(waSensorsAcquire, 2*1024);	
+static THD_WORKING_AREA(waBatterySurvey, 1024);	
+static void sensorsAcquire (void *arg);		
 
 
 
@@ -245,8 +248,10 @@ bool	launchSensorsThd(void)
     chThdSleepSeconds(5);
   }
 
-  // chThdCreateStatic(waSensorsAcquire, sizeof(waSensorsAcquire), NORMALPRIO, &sensorsAcquire, NULL);
-  // chThdCreateStatic(waBatterySurvey, sizeof(waBatterySurvey), NORMALPRIO, &powerUnplugSurvey, NULL);
+  chThdCreateStatic(waSensorsAcquire, sizeof(waSensorsAcquire),
+		    NORMALPRIO, &sensorsAcquire, NULL);
+  chThdCreateStatic(waBatterySurvey, sizeof(waBatterySurvey),
+		    NORMALPRIO, &powerUnplugSurvey, NULL);
 
   
   return true;
@@ -392,8 +397,100 @@ static bool  sdLogInit(void)
   return true;
 }
 
+static void powerUnplugSurvey (void *arg)
+{
+  (void)arg;			
+  chRegSetThreadName("power Unplug Survey");
+
+  while (true) {
+    if (getVbatVoltage() < 6.0) {
+      BOARD_GROUP_DECLFOREACH(led, LINE_LEDS_GROUP) {
+	ledSet(led, LED_OFF);
+	palClearLine(led);
+      } 
+      sdLogCloseAllLogs(true);
+      sdLogFinish();
+      chThdSleepMilliseconds(4);
+      systemDeepSleep();
+    }
+    chThdSleepMilliseconds(1);
+  }
+}
 
 
+static void sensorsAcquire (void *arg)
+{
+  (void)arg;			
+  chRegSetThreadName("sensors acquire");
+  Vec3f mag;
+  
+  while (true) {
+    // MAG
+    lis3mdlWaitUntilDataReady(&lisd);
+    if (lis3mdlFetch(&lisd, LIS3_STATUS_REG, LIS3_OUT_Z_H) != MSG_OK) {
+      ledSet(LINE_LED1, LED_BLINKFAST);
+    }
+    lis3mdlFetch(&lisd, LIS3_TEMP_OUT_L, LIS3_TEMP_OUT_H);
+    lis3mdlGetMag(&lisd, &mag);
+    DebugTrace ("MAG x=%.3f y=%.3f z=%.3f temp=%.2f status=0x%x A=%.1f len=%0.2f",
+		mag.v[0], mag.v[1], mag.v[2],
+		lis3mdlGetTemp(&lisd),
+		lis3mdlGetStatus(&lisd),
+		atan2f(mag.v[1], mag.v[0]) * 180.0f / 3.1415926f,
+		sqrtf(mag.v[0] * mag.v[0] +
+		      mag.v[1] * mag.v[1] +
+		      mag.v[2] * mag.v[2]));
+    sdLogWriteLog(file, "MAG x=%.3f y=%.3f z=%.3f temp=%.2f status=0x%x A=%.1f len=%0.2f",
+	       mag.v[0], mag.v[1], mag.v[2],
+	       lis3mdlGetTemp(&lisd),
+	       lis3mdlGetStatus(&lisd),
+	       atan2f(mag.v[1], mag.v[0]) * 180.0f / 3.1415926f,
+	       sqrtf(mag.v[0] * mag.v[0] +
+		     mag.v[1] * mag.v[1] +
+		     mag.v[2] * mag.v[2]));
+    // BARO
+    if (bmp3xxFetch(&bmp3p, BMP3_PRESS | BMP3_TEMP) == MSG_OK) {
+      DebugTrace("Temp =%.2f, Press=%.2f mB",
+		 bmp3xxGetTemp(&bmp3p)/100, bmp3xxGetPressure(&bmp3p)/10000.0f);
+      sdLogWriteLog(file, "Temp =%.2f, Press=%.2f mB",
+		    bmp3xxGetTemp(&bmp3p)/100, bmp3xxGetPressure(&bmp3p)/10000.0f);
+      
+    } else {
+      DebugTrace ("bmp fetch FAIL");
+      sdLogWriteLog(file, "bmp fetch FAIL");
+      ledSet(LINE_LED2, LED_BLINKFAST);
+    }
+
+    // IMU
+    Vec3f gyro={0}, acc={0};
+    float temp=0;
+    inv3GetVal(&inv3d, &temp, &gyro, &acc);
+    DebugTrace("IMU temp= %.2f\r\n"
+	       "IMU gyro=[x=%.2f, y=%.2f, z=%.2f]\r\n"
+	       "IMU acc= [x=%.2f, y=%.2f, z=%.2f]",
+	       temp, gyro.v[0], gyro.v[1],  gyro.v[2],
+	       acc.v[0], acc.v[1],  acc.v[2]);
+    sdLogWriteLog(file, "IMU temp= %.2f\r\n"
+		  "IMU gyro=[x=%.2f, y=%.2f, z=%.2f]\r\n"
+		  "IMU acc= [x=%.2f, y=%.2f, z=%.2f]",
+		  temp, gyro.v[0], gyro.v[1],  gyro.v[2],
+		  acc.v[0], acc.v[1],  acc.v[2]);
+    
+    const float vbat  = getVbatVoltage();
+    const float coretemp = getCoreTemp();
+    DebugTrace("vbat = %.2f core temp = %.1f",
+	       vbat, coretemp);
+    sdLogWriteLog(file, "vbat = %.2f core temp = %.1f",
+		  vbat, coretemp);
+    
+    if ((vbat > 9.0) && (vbat < 11.0) && (coretemp < 60))
+      ledSet(LINE_LED4, LED_BLINKSLOW);
+    else
+      ledSet(LINE_LED4, LED_BLINKFAST);
+    
+    chThdSleepSeconds(1);
+  }
+}
 
 
 
