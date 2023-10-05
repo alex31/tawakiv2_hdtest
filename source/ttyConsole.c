@@ -7,13 +7,17 @@
 #include "microrl/microrlShell.h"
 #include "ttyConsole.h"
 #include "stdutil.h"
+#include "usb_serial.h"
 #include "rtcAccess.h"
 #include "printf.h"
+
 
 
 /*===========================================================================*/
 /* START OF EDITABLE SECTION                                           */
 /*===========================================================================*/
+
+SerialUSBDriver SDU1;
 
 
 static void cmd_mem(BaseSequentialStream *lchp, int argc,const char * const argv[]);

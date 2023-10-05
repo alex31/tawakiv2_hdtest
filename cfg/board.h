@@ -124,7 +124,7 @@
 #define	PE02                           2U
 #define	PE03_SPI6_CS_INTERNAL          3U
 #define	PE04                           4U
-#define	PE05                           5U
+#define	PE05_IMU_CLK_SRC               5U
 #define	PE06                           6U
 #define	PE07                           7U
 #define	PE08                           8U
@@ -299,6 +299,7 @@
 
 #define	LINE_RC1                       PAL_LINE(GPIOE, 0U)
 #define	LINE_SPI6_CS_INTERNAL          PAL_LINE(GPIOE, 3U)
+#define	LINE_IMU_CLK_SRC               PAL_LINE(GPIOE, 5U)
 #define	LINE_SRVA1                     PAL_LINE(GPIOE, 9U)
 #define	LINE_SRVA2                     PAL_LINE(GPIOE, 11U)
 #define	LINE_SRVA3                     PAL_LINE(GPIOE, 13U)
@@ -747,7 +748,7 @@
 					 PIN_MODE_INPUT(PE02) | \
 					 PIN_MODE_OUTPUT(PE03_SPI6_CS_INTERNAL) | \
 					 PIN_MODE_INPUT(PE04) | \
-					 PIN_MODE_INPUT(PE05) | \
+					 PIN_MODE_ALTERNATE(PE05_IMU_CLK_SRC) | \
 					 PIN_MODE_INPUT(PE06) | \
 					 PIN_MODE_INPUT(PE07) | \
 					 PIN_MODE_INPUT(PE08) | \
@@ -764,7 +765,7 @@
 					 PIN_OTYPE_PUSHPULL(PE02) | \
 					 PIN_OTYPE_PUSHPULL(PE03_SPI6_CS_INTERNAL) | \
 					 PIN_OTYPE_PUSHPULL(PE04) | \
-					 PIN_OTYPE_PUSHPULL(PE05) | \
+					 PIN_OTYPE_PUSHPULL(PE05_IMU_CLK_SRC) | \
 					 PIN_OTYPE_PUSHPULL(PE06) | \
 					 PIN_OTYPE_PUSHPULL(PE07) | \
 					 PIN_OTYPE_PUSHPULL(PE08) | \
@@ -781,7 +782,7 @@
 					 PIN_OSPEED_SPEED_VERYLOW(PE02) | \
 					 PIN_OSPEED_SPEED_HIGH(PE03_SPI6_CS_INTERNAL) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PE04) | \
-					 PIN_OSPEED_SPEED_VERYLOW(PE05) | \
+					 PIN_OSPEED_SPEED_HIGH(PE05_IMU_CLK_SRC) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PE06) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PE07) | \
 					 PIN_OSPEED_SPEED_VERYLOW(PE08) | \
@@ -798,7 +799,7 @@
 					 PIN_PUPDR_PULLDOWN(PE02) | \
 					 PIN_PUPDR_FLOATING(PE03_SPI6_CS_INTERNAL) | \
 					 PIN_PUPDR_PULLDOWN(PE04) | \
-					 PIN_PUPDR_PULLDOWN(PE05) | \
+					 PIN_PUPDR_FLOATING(PE05_IMU_CLK_SRC) | \
 					 PIN_PUPDR_PULLDOWN(PE06) | \
 					 PIN_PUPDR_PULLDOWN(PE07) | \
 					 PIN_PUPDR_PULLDOWN(PE08) | \
@@ -815,7 +816,7 @@
 					 PIN_ODR_LEVEL_LOW(PE02) | \
 					 PIN_ODR_LEVEL_HIGH(PE03_SPI6_CS_INTERNAL) | \
 					 PIN_ODR_LEVEL_LOW(PE04) | \
-					 PIN_ODR_LEVEL_LOW(PE05) | \
+					 PIN_ODR_LEVEL_LOW(PE05_IMU_CLK_SRC) | \
 					 PIN_ODR_LEVEL_LOW(PE06) | \
 					 PIN_ODR_LEVEL_LOW(PE07) | \
 					 PIN_ODR_LEVEL_LOW(PE08) | \
@@ -832,7 +833,7 @@
 					 PIN_AFIO_AF(PE02, 0) | \
 					 PIN_AFIO_AF(PE03_SPI6_CS_INTERNAL, 0) | \
 					 PIN_AFIO_AF(PE04, 0) | \
-					 PIN_AFIO_AF(PE05, 0) | \
+					 PIN_AFIO_AF(PE05_IMU_CLK_SRC, 4) | \
 					 PIN_AFIO_AF(PE06, 0) | \
 					 PIN_AFIO_AF(PE07, 0))
 
@@ -1535,6 +1536,8 @@
 #define AF_LINE_I2C4_SDA_INTERNAL        4U
 #define AF_PE00_RC1                      8U
 #define AF_LINE_RC1                      8U
+#define AF_PE05_IMU_CLK_SRC              4U
+#define AF_LINE_IMU_CLK_SRC              4U
 #define AF_PE09_SRVA1                    1U
 #define AF_LINE_SRVA1                    1U
 #define AF_PE11_SRVA2                    1U
@@ -1597,6 +1600,42 @@
 
 #define BOARD_GROUP_FOR(array, index, group)  \
   for (ioline_t index=0, *array =  (ioline_t *) group ## _ARRAY; index < group ## _SIZE; index++)
+
+#define LINE_CONTINUITY_GROUP \
+	LINE_AUX_A1, \
+	LINE_AUX_A2, \
+	LINE_AUX_A3, \
+	LINE_AUX_A4, \
+	LINE_SRVB1, \
+	LINE_SRVB2, \
+	LINE_DSHOT_TLM, \
+	LINE_UART7_TX, \
+	LINE_SRVB3, \
+	LINE_SRVB4, \
+	LINE_UART7_RX, \
+	LINE_AUX_B1, \
+	LINE_AUX_B2, \
+	LINE_AUX_B3, \
+	LINE_AUX_B4, \
+	LINE_I2C2_SCL_EXTERNAL, \
+	LINE_I2C2_SDA_EXTERNAL, \
+	LINE_SPI2_CS_EXTERNAL, \
+	LINE_SPI2_EXTERNAL_MISO, \
+	LINE_SPI2_EXTERNAL_MOSI, \
+	LINE_RC2, \
+	LINE_APSW, \
+	LINE_CAN_TX, \
+	LINE_SPI2_EXTERNAL_CLK, \
+	LINE_UART2_TX, \
+	LINE_UART2_RX, \
+	LINE_UART3_TX, \
+	LINE_UART3_RX, \
+	LINE_RC1, \
+	LINE_SRVA1, \
+	LINE_SRVA2, \
+	LINE_SRVA3, \
+	LINE_SRVA4
+#define LINE_CONTINUITY_GROUP_SIZE 	 33
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

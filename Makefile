@@ -66,12 +66,12 @@ endif
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT = -std=gnu11   
+  USE_COPT = -std=gnu2x
 endif
 
 # C++ specific options here (added to USE_OPT).
 ifeq ($(USE_CPPOPT),)
-  USE_CPPOPT = -std=gnu++2a -fno-rtti -fno-exceptions -fno-threadsafe-statics $(G++_DIAG)
+  USE_CPPOPT = -std=c++23 -fno-rtti -fno-exceptions -fno-threadsafe-statics $(G++_DIAG)
 endif
 
 
@@ -148,9 +148,9 @@ else
 endif
 CHIBIOS  := $(RELATIVE)/$(notdir $(MY_DIRNAME))
 STMSRC = $(RELATIVE)/COMMON/stm
+EXTSRC = $(RELATIVE)/COMMON/ext
 VARIOUS = $(RELATIVE)/COMMON/various
-USBD_LIB = $(VARIOUS)/Chibios-USB-Devices
-USBD_LIB   := $(VARIOUS)/Chibios-USB-Devices
+USBD_LIB   := $(VARIOUS)/Chibios-USB-Devices/mass_storage
 TOOLDIR    := $(VARIOUS)/TOOLS
 
 CONFDIR    := ./cfg
@@ -173,6 +173,8 @@ include $(CHIBIOS)/os/common/ports/ARMv7-M/compilers/GCC/mk/port.mk
 # Auto-build files in ./source recursively.
 include $(CHIBIOS)/tools/mk/autobuild.mk
 # Other files (optional).
+include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
+include $(VARIOUS)/tlsf_bku/tlsf.mk
 
 
 # Define linker script file here
@@ -182,15 +184,21 @@ LDSCRIPT= $(STARTUPLD)/STM32H743xI.ld
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC = $(ALLCSRC) \
+       $(TLSFSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        $(VARIOUS)/stdutil.c \
        $(VARIOUS)/printf.c \
        $(VARIOUS)/microrl/microrlShell.c \
        $(VARIOUS)/microrl/microrl.c \
        $(VARIOUS)/rtcAccess.c \
-       $(VARIOUS)/hal_stm32_dma.c \
-       $(VARIOUS)/serial_message/simpleSerialMessage.c 
-#      $(VARIOUS)/esc_dshot.c
+       $(VARIOUS)/leds.c \
+       $(VARIOUS)/i2cMaster.c \
+       $(VARIOUS)/spiPeriphIvensenseV3.c \
+       $(VARIOUS)/usb_serial.c \
+       $(VARIOUS)/sdLog.c \
+       $(VARIOUS)/msg_queue.c \
+       $(VARIOUS)/sdio.c \
+       $(USBD_LIB)/usb_msd.c
 
 
 
@@ -207,7 +215,7 @@ ASMXSRC = $(ALLXASMSRC)
 
 # Inclusion directories.
 INCDIR = $(CONFDIR) $(ALLINC) $(CHIBIOS)/os/various $(VARIOUS) \
-	 $(EXTLIB)
+	 $(EXTLIB) $(USBD_LIB) $(TLSFINC) $(EXTSRC)
 
 #
 # Project, sources and paths

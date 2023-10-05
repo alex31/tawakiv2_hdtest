@@ -125,11 +125,11 @@
 #define STM32_SW                            STM32_SW_PLL1_P_CK
 #define STM32_RTCSEL                        STM32_RTCSEL_LSE_CK
 #define STM32_D1CPRE                        STM32_D1CPRE_DIV1
-#define STM32_D1HPRE                        STM32_D1HPRE_DIV4
-#define STM32_D1PPRE3                       STM32_D1PPRE3_DIV1
-#define STM32_D2PPRE1                       STM32_D2PPRE1_DIV1
-#define STM32_D2PPRE2                       STM32_D2PPRE2_DIV1
-#define STM32_D3PPRE4                       STM32_D3PPRE4_DIV1
+#define STM32_D1HPRE                        STM32_D1HPRE_DIV2
+#define STM32_D1PPRE3                       STM32_D1PPRE3_DIV2
+#define STM32_D2PPRE1                       STM32_D2PPRE1_DIV2
+#define STM32_D2PPRE2                       STM32_D2PPRE2_DIV2
+#define STM32_D3PPRE4                       STM32_D3PPRE4_DIV2
 
 /*
  * Peripherals clocks static settings.
@@ -283,7 +283,7 @@
 #define STM32_I2C_USE_I2C1                  FALSE
 #define STM32_I2C_USE_I2C2                  FALSE
 #define STM32_I2C_USE_I2C3                  FALSE
-#define STM32_I2C_USE_I2C4                  FALSE
+#define STM32_I2C_USE_I2C4                  TRUE
 #define STM32_I2C_BUSY_TIMEOUT              50
 #define STM32_I2C_I2C1_RX_DMA_STREAM        STM32_DMA_STREAM_ID_ANY
 #define STM32_I2C_I2C1_TX_DMA_STREAM        STM32_DMA_STREAM_ID_ANY
@@ -342,7 +342,7 @@
 #define STM32_PWM_USE_TIM12                 FALSE
 #define STM32_PWM_USE_TIM13                 FALSE
 #define STM32_PWM_USE_TIM14                 FALSE
-#define STM32_PWM_USE_TIM15                 FALSE
+#define STM32_PWM_USE_TIM15                 TRUE
 #define STM32_PWM_USE_TIM16                 FALSE
 #define STM32_PWM_USE_TIM17                 FALSE
 
@@ -394,7 +394,7 @@
 /*
  * SPI driver system settings.
  */
-#define STM32_SPI_USE_SPI1                  TRUE
+#define STM32_SPI_USE_SPI1                  FALSE
 #define STM32_SPI_USE_SPI2                  FALSE
 #define STM32_SPI_USE_SPI3                  FALSE
 #define STM32_SPI_USE_SPI4                  FALSE
@@ -477,7 +477,7 @@
 /*
  * USB driver system settings.
  */
-#define STM32_USB_USE_OTG1                  FALSE
+#define STM32_USB_USE_OTG1                  TRUE
 #define STM32_USB_USE_OTG2                  FALSE
 #define STM32_USB_OTG1_IRQ_PRIORITY         14
 #define STM32_USB_OTG2_IRQ_PRIORITY         14
@@ -501,8 +501,24 @@
 #define STM32_WSPI_MDMA_ERROR_HOOK(wspip)   osalSysHalt("MDMA failure")
 
 #define CH_HEAP_SIZE (32*1024)
-#define CH_HEAP_USE_TLSF 0 // if 0 or undef, chAlloc will be used
-#define CONSOLE_DEV_SD SD3
+#define CH_HEAP_USE_TLSF 1 // if 0 or undef, chAlloc will be used
+
+struct SerialUSBDriver;
+extern struct SerialUSBDriver SDU1;
+#define CONSOLE_DEV_USB 1
+#define USBDRIVER       USBD1
+#define CONSOLE_DEV_SD  SDU1
+
+#define CHPRINTF_USE_STDLIB		    1
+#define CHPRINTF_BUFFER_SIZE		    160
+#define I2C_USE_LIS3MDL			    TRUE
+#define	I2C_USE_IMU9250			    FALSE
+#define	I2C_USE_MPL3115A2		    FALSE
+#define I2C_USE_BMP3XX			    TRUE
+#define SDLOG_QUEUE_BUCKETS  1024
+#define SDLOG_MAX_MESSAGE_LEN 384
+#define SDLOG_NUM_FILES 1
+#define SDLOG_ALL_BUFFERS_SIZE (SDLOG_NUM_FILES*1024*64)
 
 
 #endif /* MCUCONF_H */
