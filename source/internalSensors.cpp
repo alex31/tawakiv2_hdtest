@@ -48,7 +48,11 @@ constexpr size_t   ADC_GRP1_BUF_DEPTH    =   1;
 constexpr uint32_t EXTBAT_CHANNEL	 = ADC_CHANNEL_IN10;
 constexpr uint32_t VSENSE_CHANNEL	 = ADC_CHANNEL_IN18;
 constexpr uint32_t VREFINT_CHANNEL	 = ADC_CHANNEL_IN19;
-static adcsample_t IN_DMA_SECTION_CLEAR(samples[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH]);
+
+// ADC3 is connected via BMDA which is only able to access RAM4
+__attribute__((section(".ram4"),aligned(32)))
+static adcsample_t samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH)];
+
 static const ADCConversionGroup adcgrpcfg = {
   .circular     = true,
   .num_channels = ADC_GRP1_NUM_CHANNELS,

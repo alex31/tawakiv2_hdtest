@@ -7,6 +7,23 @@
 #include <array>
 #include <algorithm>
 
+
+/*
+  Regarder finement quels perpiphériques sont connectés à quels DMA qui 
+  peuvent acceder quelles sections de mémoire
+  ° cf ChibiOS_21.11_stable/os/common/startup/ARMCMx/compilers/GCC/ld/STM32H743xI.ld
+  ° cf RM0433 page 104/3353 : memory map
+ 
+  *  ADC3, I2C4, SPI6  : BDMA -> .RAM4
+
+  => necessité d'un allocateur de mémoire sur ram4, solution c++ ?
+  => necessité de changer l'API de SPIMaster, BMX390, LIS3mdl pour 
+     passer en argument la zone de mémoire DMA
+  ?? -> utilisation du flush ou passsage de .ram4 en nocache ? 
+
+ */
+
+
 /*
   Câbler une LED sur la broche C0
 
