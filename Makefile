@@ -178,7 +178,8 @@ include $(VARIOUS)/tlsf_bku/tlsf.mk
 
 
 # Define linker script file here
-LDSCRIPT= $(STARTUPLD)/STM32H743xI.ld
+STARTUPLD=$(CONFDIR)/ld/
+LDSCRIPT= $(STARTUPLD)/STM32H743xI_TawakiH7.ld
 
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global

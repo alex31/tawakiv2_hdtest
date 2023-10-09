@@ -50,10 +50,14 @@
 /*
  * Memory attributes settings.
  */
-#define STM32_NOCACHE_ENABLE                TRUE
-#define STM32_NOCACHE_MPU_REGION            MPU_REGION_6
-#define STM32_NOCACHE_RBAR                  0x38000000
-#define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_64K
+
+// there is need for several noncache sections, so
+// mpu setting is done in ramArch.c/h
+
+/* #define STM32_NOCACHE_ENABLE                TRUE */
+/* #define STM32_NOCACHE_MPU_REGION            MPU_REGION_6 */
+/* #define STM32_NOCACHE_RBAR                  0x38000000 */
+/* #define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_64K */
 
 /*
  * PWR system settings.
@@ -516,7 +520,7 @@ extern struct SerialUSBDriver SDU1;
 #define SDLOG_QUEUE_BUCKETS  1024
 #define SDLOG_MAX_MESSAGE_LEN 384
 #define SDLOG_NUM_FILES 1
-#define SDLOG_ALL_BUFFERS_SIZE (SDLOG_NUM_FILES*1024*16)
+#define SDLOG_ALL_BUFFERS_SIZE (SDLOG_NUM_FILES*1024*64)
 
 
 #endif /* MCUCONF_H */

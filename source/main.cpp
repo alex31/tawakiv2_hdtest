@@ -1,5 +1,6 @@
 #include <ch.h>
 #include <hal.h>
+#include "ramArch.h"
 #include "stdutil.h"		// necessaire pour initHeap
 #include "ttyConsole.h"		// fichier d'entête du shell
 #include "leds.h"		// fichier d'entête du shell
@@ -7,6 +8,12 @@
 #include <array>
 #include <algorithm>
 
+
+/*
+  TODO :
+
+  
+ */
 
 /*
   Regarder finement quels perpiphériques sont connectés à quels DMA qui 
@@ -25,7 +32,9 @@
            faite dans un thread plutot que dans main
 
     + pour le SDMMC : connecté à AXI (.ram0) 
-      ->TODO : passer par mcuconf pour passer la section à utiliser
+      dans les fichiers linker script, nocache correspond à ram0nc pour les buffers
+      internes du driver SDIO (hardwired)
+    + driver sdLog modifié
 
  */
 
@@ -83,8 +92,8 @@ static void gpioPulse (void *)
 
 int main (void)
 {
-
   halInit();
+  mpuConfigureNonCachedRam();
   chSysInit();
   initHeap();		// initialisation du "tas" pour permettre l'allocation mémoire dynamique 
 

@@ -50,8 +50,8 @@ constexpr uint32_t VSENSE_CHANNEL	 = ADC_CHANNEL_IN18;
 constexpr uint32_t VREFINT_CHANNEL	 = ADC_CHANNEL_IN19;
 
 // ADC3 is connected via BMDA which is only able to access RAM4
-__attribute__((section(".ram4"),aligned(32)))
-static adcsample_t samples[CACHE_SIZE_ALIGN(adcsample_t, ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH)];
+__attribute__((section(".ram4")))
+static adcsample_t samples[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH];
 
 static const ADCConversionGroup adcgrpcfg = {
   .circular     = true,
@@ -219,7 +219,9 @@ const Inv3Config icmCfg =  {
 };
 static Inv3Driver inv3d;
 
-static THD_WORKING_AREA(waSensorsAcquire, 2*1024);	
+__attribute__((section(".ram4")))
+static THD_WORKING_AREA(waSensorsAcquire, 2*1024) ;	
+__attribute__((section(".ram4")))
 static THD_WORKING_AREA(waBatterySurvey, 1024);	
 static void sensorsAcquire (void *arg);		
 
@@ -245,9 +247,6 @@ bool	launchSensorsThd(void)
   adcSTM32EnableTS(&ADCD3);
   adcStartConversion(&ADCD3, &adcgrpcfg, samples, ADC_GRP1_BUF_DEPTH);
 
-  while (not initSensors()) {
-    chThdSleepSeconds(1);
-  }
   while (not (sdLogInit())) {
     chThdSleepSeconds(5);
   }
@@ -427,6 +426,10 @@ static void sensorsAcquire (void *arg)
   (void)arg;			
   chRegSetThreadName("sensors acquire");
   Vec3f mag;
+
+  while (not initSensors()) {
+    chThdSleepSeconds(1);
+  }
   
   while (true) {
     // MAG
