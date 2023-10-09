@@ -3,7 +3,7 @@
 #include "stdutil.h"		// necessaire pour initHeap
 #include "ttyConsole.h"		// fichier d'entête du shell
 #include "leds.h"		// fichier d'entête du shell
-//#include "internalSensors.hpp"
+#include "internalSensors.hpp"
 #include <array>
 #include <algorithm>
 
@@ -16,10 +16,16 @@
  
   *  ADC3, I2C4, SPI6  : BDMA -> .RAM4
 
-  => necessité d'un allocateur de mémoire sur ram4, solution c++ ?
-  => necessité de changer l'API de SPIMaster, BMX390, LIS3mdl pour 
-     passer en argument la zone de mémoire DMA
-  ?? -> utilisation du flush ou passsage de .ram4 en nocache ? 
+  * solution retenue : 
+    + pour l'adc, buffer statique ou l'on specifie section .ram4
+    + pour le BMP390 et le LIS3MDL en I²C, l'ICM40605, les librairies allouent un buffer
+      aligné sur la pile et force la coherence de cache : il suffit que tous les appels
+      se fassent depuis des thread ou la pile soit allouée sur dans la section ram4
+      ->TODO : thread qui utilisent .ram4 et initialisation des periphériques 
+           faite dans un thread plutot que dans main
+
+    + pour le SDMMC : connecté à AXI (.ram0) 
+      ->TODO : passer par mcuconf pour passer la section à utiliser
 
  */
 
@@ -90,12 +96,9 @@ int main (void)
   
   consoleInit();	// initialisation des objets liés au shell
   chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO, &gpioPulse, NULL); 
-  // launchSensorsThd();
-  // cette fonction en interne fait une boucle infinie, elle ne sort jamais
-  // donc tout code situé après ne sera jamais exécuté.
+  launchSensorsThd();
   consoleLaunch();  // lancement du shell
   
-  // main thread does nothing
   chThdSleep(TIME_INFINITE);
 }
 

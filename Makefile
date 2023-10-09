@@ -186,6 +186,7 @@ LDSCRIPT= $(STARTUPLD)/STM32H743xI.ld
 CSRC = $(ALLCSRC) \
        $(TLSFSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
+       $(EXTSRC)/BMP3XX/bmp3.c \
        $(VARIOUS)/stdutil.c \
        $(VARIOUS)/printf.c \
        $(VARIOUS)/microrl/microrlShell.c \
@@ -250,7 +251,7 @@ UINCDIR =
 ULIBDIR =
 
 # List all user libraries here
-ULIBS = 
+ULIBS = -lm
 
 #
 # End of user defines
