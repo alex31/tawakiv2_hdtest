@@ -35,7 +35,7 @@ MEMORY
     flash5  (rx) : org = 0x00000000, len = 0
     flash6  (rx) : org = 0x00000000, len = 0
     flash7  (rx) : org = 0x00000000, len = 0
-    ram0nc  (wx) : org = 0x24000000, len = 128k      /* AXI SRAM NON CACHED */
+    ram0nc  (wx) : org = 0x24000000, len = 128k       /* AXI SRAM NON CACHED */
     ram0    (wx) : org = 0x24020000, len = 384k      /* AXI SRAM */
     ram1    (wx) : org = 0x30000000, len = 256k      /* AHB SRAM1+SRAM2 */
     ram2    (wx) : org = 0x30000000, len = 288k      /* AHB SRAM1+SRAM2+SRAM3 */
@@ -115,6 +115,17 @@ SECTIONS
 {
 
 /* Special section for non cache-able areas.*/
+    .nocache (NOLOAD) : ALIGN(4)
+    {
+        __nocache_base__ = .;
+        *(.nocache)
+        *(.nocache.*)
+        *(.bss.__nocache_*)
+        . = ALIGN(4);
+        __nocache_end__ = .;
+    	} > NOCACHE_RAM
+
+/* Special section for non cache-able areas.*/
     .nocache3 (NOLOAD) : ALIGN(4)
     {
         __nocache3_base__ = .;
@@ -136,16 +147,6 @@ SECTIONS
         __nocache4_end__ = .;
     } > NOCACHE4_RAM
 
-      /* Special section for non cache-able areas.*/
-    .nocache (NOLOAD) : ALIGN(4)
-    {
-        __nocache_base__ = .;
-        *(.nocache)
-        *(.nocache.*)
-        *(.bss.__nocache_*)
-        . = ALIGN(4);
-        __nocache_end__ = .;
-    	} > NOCACHE_RAM
        
 /* Special section for Ethernet DMA non cache-able areas.*/
     .eth (NOLOAD) : ALIGN(4)

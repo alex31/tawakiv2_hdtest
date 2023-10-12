@@ -10,18 +10,21 @@
 
 
 /*
-  TODO :
-
+  TODO : pour le BMP390 et le LIS3MDL en I²C, l'ICM40605, on utilise une mémoire non cache et on force le flush : 
+         choisir une des 2 solutions, mais pas les 2 !
+         possibilité : ne pas disabler le cache de ram4, et faire un invalidate avant de lire le buffer de samples ADC
+                       qui devra être aligné 32 et avec taille alignée 32 aussi
+  
   
  */
 
 /*
-  Regarder finement quels perpiphériques sont connectés à quels DMA qui 
-  peuvent acceder quelles sections de mémoire
   ° cf ChibiOS_21.11_stable/os/common/startup/ARMCMx/compilers/GCC/ld/STM32H743xI.ld
   ° cf RM0433 page 104/3353 : memory map
  
-  *  ADC3, I2C4, SPI6  : BDMA -> .RAM4
+  *  ADC3, I2C4, SPI6  : BDMA -> .RAM4 -> DMAMUX2
+  *  SDMMC1, SPI2, I2C2, TIM1, TIM3, TIM4  : DMA -> .RAM0NC -> DMAMUX1 
+  *  FDCAN : non connecté DMA
 
   * solution retenue : 
     + pour l'adc, buffer statique ou l'on specifie section .ram4
