@@ -67,7 +67,7 @@
  */
 #define STM32_VOS                           STM32_VOS_SCALE1
 #define STM32_PWR_CR1                       (PWR_CR1_SVOS_1 | PWR_CR1_SVOS_0)
-#define STM32_PWR_CR2                       (PWR_CR2_BREN)
+#define STM32_PWR_CR2                       (PWR_CR2_BREN | PWR_CR2_MONEN)
 #define STM32_PWR_CR3                       (PWR_CR3_LDOEN | PWR_CR3_USB33DEN)
 #define STM32_PWR_CPUCR                     0
 
@@ -104,9 +104,9 @@
 #define STM32_PLL2_Q_ENABLED                TRUE
 #define STM32_PLL2_R_ENABLED                TRUE
 #define STM32_PLL2_DIVM_VALUE               4
-#define STM32_PLL2_DIVN_VALUE               400
+#define STM32_PLL2_DIVN_VALUE               480
 #define STM32_PLL2_FRACN_VALUE              0
-#define STM32_PLL2_DIVP_VALUE               40
+#define STM32_PLL2_DIVP_VALUE               100
 #define STM32_PLL2_DIVQ_VALUE               8
 #define STM32_PLL2_DIVR_VALUE               8
 #define STM32_PLL3_ENABLED                  TRUE
@@ -114,7 +114,7 @@
 #define STM32_PLL3_Q_ENABLED                TRUE
 #define STM32_PLL3_R_ENABLED                TRUE
 #define STM32_PLL3_DIVM_VALUE               4
-#define STM32_PLL3_DIVN_VALUE               400
+#define STM32_PLL3_DIVN_VALUE               480
 #define STM32_PLL3_FRACN_VALUE              0
 #define STM32_PLL3_DIVP_VALUE               8
 #define STM32_PLL3_DIVQ_VALUE               8
