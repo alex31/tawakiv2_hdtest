@@ -51,13 +51,12 @@
  * Memory attributes settings.
  */
 
-// there is need for several noncache sections, so
-// mpu setting is done in ramArch.c/h
-
-/* #define STM32_NOCACHE_ENABLE                TRUE */
-/* #define STM32_NOCACHE_MPU_REGION            MPU_REGION_6 */
-/* #define STM32_NOCACHE_RBAR                  0x38000000 */
-/* #define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_64K */
+#define STM32_NOCACHE_ENABLE                FALSE
+#define STM32_NOCACHE_MPU_REGION            MPU_REGION_6
+#define STM32_NOCACHE_SRAM1_SRAM2           FALSE
+#define STM32_NOCACHE_SRAM3                 TRUE
+#define STM32_NOCACHE_RBAR                  0x24000000U
+#define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_16K
 
 /*
  * PWR system settings.
@@ -80,7 +79,7 @@
 #define STM32_CSI_ENABLED                   TRUE
 #define STM32_HSI48_ENABLED                 TRUE
 #define STM32_HSE_ENABLED                   TRUE
-#define STM32_LSE_ENABLED                   TRUE
+#define STM32_LSE_ENABLED                   FALSE
 #define STM32_HSIDIV                        STM32_HSIDIV_DIV1
 
 /*
@@ -125,7 +124,7 @@
  * Reading STM32 Reference Manual is required.
  */
 #define STM32_SW                            STM32_SW_PLL1_P_CK
-#define STM32_RTCSEL                        STM32_RTCSEL_LSE_CK
+#define STM32_RTCSEL                        STM32_RTCSEL_NOCLK
 #define STM32_D1CPRE                        STM32_D1CPRE_DIV1
 #define STM32_D1HPRE                        STM32_D1HPRE_DIV2
 #define STM32_D1PPRE3                       STM32_D1PPRE3_DIV2
@@ -365,8 +364,8 @@
 #define STM32_SDC_SDMMC_WRITE_TIMEOUT       1000000
 #define STM32_SDC_SDMMC_READ_TIMEOUT        1000000
 #define STM32_SDC_SDMMC_CLOCK_DELAY         10
-#define STM32_SDC_SDMMC_PWRSAV              TRUE
-
+#define STM32_SDC_SDMMC_PWRSAV              FALSE
+//#define STM32_SDC_MAX_CLOCK		    12000000
 /*
  * SERIAL driver system settings.
  */

@@ -60,7 +60,7 @@ static void     thdUsbStorage(void *arg)
 {
   (void) arg; // unused
   chRegSetThreadName("UsbStorage:polling"); 
-  uint antiBounce=5;
+  uint32_t antiBounce=5;
   
   // Should use EXTI interrupt instead of active polling,
   // but in the chibios_opencm3 implementation, since EXTI is

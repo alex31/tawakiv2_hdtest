@@ -8,7 +8,6 @@
 #include "ttyConsole.h"
 #include "stdutil.h"
 #include "usb_serial.h"
-#include "rtcAccess.h"
 #include "printf.h"
 
 
@@ -22,13 +21,11 @@ SerialUSBDriver SDU1;
 
 static void cmd_mem(BaseSequentialStream *lchp, int argc,const char * const argv[]);
 static void cmd_threads(BaseSequentialStream *lchp, int argc,const char * const argv[]);
-static void cmd_rtc(BaseSequentialStream *lchp, int argc,const char * const argv[]);
 static void cmd_uid(BaseSequentialStream *lchp, int argc,const char * const argv[]);
 
 static const ShellCommand commands[] = {
   {"mem", cmd_mem},
   {"threads", cmd_threads},
-  {"rtc", cmd_rtc},
   {"uid", cmd_uid},
   {NULL, NULL}
 };
@@ -88,86 +85,6 @@ static void cmd_uid(BaseSequentialStream *lchp, int argc,const char * const argv
   chprintf (lchp, "\r\n");
 }
 
-static void cmd_rtc(BaseSequentialStream *lchp, int argc,const char * const argv[])
-{
-  if ((argc != 0) && (argc != 2) && (argc != 6)) {
-     DebugTrace ("Usage: rtc [Hour Minute Second Year monTh Day day_of_Week Adjust] value or");
-     DebugTrace ("Usage: rtc  Hour Minute Second Year monTh Day");
-     return;
-  }
- 
-  if (argc == 2) {
-    const char timeVar = (char) tolower ((int) *(argv[0]));
-    const int32_t varVal = atoi (argv[1]);
-    
-    switch (timeVar) {
-    case 'h':
-      setHour ((uint32_t)(varVal));
-      break;
-      
-    case 'm':
-       setMinute ((uint32_t)(varVal));
-      break;
-      
-    case 's':
-      setSecond ((uint32_t)(varVal));
-      break;
-      
-    case 'y':
-       setYear ((uint32_t)(varVal));
-      break;
-      
-    case 't':
-       setMonth ((uint32_t)(varVal));
-      break;
-      
-    case 'd':
-       setMonthDay ((uint32_t)(varVal));
-      break;
-
-    case 'w':
-       setWeekDay ((uint32_t)(varVal));
-      break;
-
-    case 'a':
-      {
-	int32_t newSec =(int)(getSecond()) + varVal;
-	if (newSec > 59) {
-	  int32_t newMin =(int)(getMinute()) + (newSec/60);
-	  if (newMin > 59) {
-	    setHour ((getHour()+((uint32_t)(newMin/60))) % 24);
-	    newMin %= 60;
-	  }
-	  setMinute ((uint32_t)newMin);
-	}
-	if (newSec < 0) {
-	  int32_t newMin =(int)getMinute() + (newSec/60)-1;
-	  if (newMin < 0) {
-	    setHour ((getHour()-((uint32_t)newMin/60)-1) % 24);
-	    newMin %= 60;
-	  }
-	  setMinute ((uint32_t)newMin);
-	}
-	setSecond ((uint32_t)newSec % 60);
-      }
-      break;
-      
-    default:
-      DebugTrace ("Usage: rtc [Hour Minute Second Year monTh Day Weekday Adjust] value");
-    }
-  } else if (argc == 6) {
-    setYear ((uint32_t) atoi(argv[3]));
-    setMonth ((uint32_t) atoi(argv[4]));
-    setMonthDay ((uint32_t) atoi(argv[5]));
-    setHour ((uint32_t) atoi(argv[0]));
-    setMinute ((uint32_t) atoi(argv[1]));
-    setSecond ((uint32_t) atoi(argv[2]));
-  }
-
-  chprintf (lchp, "RTC : %s %.02lu/%.02lu/%.04lu  %.02lu:%.02lu:%.02lu\r\n",
-	    getWeekDayAscii(), getMonthDay(), getMonth(), getYear(),
-	    getHour(), getMinute(), getSecond());
-}
 
 
 static void cmd_mem(BaseSequentialStream *lchp, int argc,const char * const argv[]) {

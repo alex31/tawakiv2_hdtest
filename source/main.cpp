@@ -107,9 +107,9 @@ int main (void)
 							    
   
   consoleInit();	// initialisation des objets liés au shell
+  consoleLaunch();      // lancement du shell
   chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO, &gpioPulse, NULL); 
   launchSensorsThd();
-  consoleLaunch();  // lancement du shell
   
   chThdSleep(TIME_INFINITE);
 }
