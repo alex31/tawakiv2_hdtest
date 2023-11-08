@@ -7,7 +7,7 @@
 #include "internalSensors.hpp"
 #include <array>
 #include <algorithm>
-
+#include "sdio.h"
 
 /*
   TODO : pour le BMP390 et le LIS3MDL en I²C, l'ICM40605, on utilise une mémoire non cache et on force le flush : 
@@ -108,8 +108,15 @@ int main (void)
   
   consoleInit();	// initialisation des objets liés au shell
   consoleLaunch();      // lancement du shell
-  chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO, &gpioPulse, NULL); 
-  launchSensorsThd();
+  ledSet(LINE_LED4, LED_BLINKFAST);
+  chThdSleepSeconds(5);
+  ledSet(LINE_LED3, LED_BLINKFAST);
+  while(true) {
+    cmd_sdiotest(chp, false, nullptr);
+    chThdSleepSeconds(5);
+  }
+  //  chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO, &gpioPulse, NULL); 
+  //  launchSensorsThd();
   
   chThdSleep(TIME_INFINITE);
 }
