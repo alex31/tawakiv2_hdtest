@@ -643,6 +643,7 @@
  */
 #if !defined(CH_DBG_ENABLE_STACK_CHECK)
 #define CH_DBG_ENABLE_STACK_CHECK           TRUE
+//#define PORT_ENABLE_GUARD_PAGES		    TRUE
 #endif
 
 /**
@@ -667,7 +668,7 @@
  *          tickless mode.
  */
 #if !defined(CH_DBG_THREADS_PROFILING)
-#define CH_DBG_THREADS_PROFILING            TRUE
+#define CH_DBG_THREADS_PROFILING            FALSE
 #endif
 
 /** @} */

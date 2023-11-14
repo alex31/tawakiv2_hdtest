@@ -5,7 +5,7 @@
 /  FatFs - FAT file system module configuration file
 /---------------------------------------------------------------------------*/
 
-#define FFCONF_DEF	86631	/* Revision ID */
+#define FFCONF_DEF	80286	/* Revision ID */
 
 /*---------------------------------------------------------------------------/
 / Function Configurations
@@ -101,7 +101,7 @@
 */
 
 
-#define    FF_USE_LFN    2
+#define FF_USE_LFN		3
 #define    FF_MAX_LFN    255
 /* The FF_USE_LFN switches the support of long file name (LFN).
 /
@@ -234,7 +234,7 @@
 #define FF_FS_NORTC		0
 #define FF_NORTC_MON	1
 #define FF_NORTC_MDAY	1
-#define FF_NORTC_YEAR	2019
+#define FF_NORTC_YEAR	2023
 /* The option FF_FS_NORTC switches timestamp functiton. If the system does not have
 /  any RTC function or valid timestamp is not needed, set FF_FS_NORTC = 1 to disable
 /  the timestamp function. Every object modified by FatFs will have a fixed timestamp
@@ -269,7 +269,7 @@
 /      lock control is independent of re-entrancy. */
 
 
-#define FF_FS_REENTRANT   1
+#define FF_FS_REENTRANT   0
 #define FF_FS_TIMEOUT     TIME_MS2I(1000)
 #define FF_SYNC_t         semaphore_t*
 /* The option FF_FS_REENTRANT switches the re-entrancy (thread safe) of the FatFs

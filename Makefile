@@ -113,7 +113,7 @@ endif
 # Stack size to the allocated to the Cortex-M main/exceptions stack. This
 # stack is used for processing interrupts and exceptions.
 ifeq ($(USE_EXCEPTIONS_STACKSIZE),)
-  USE_EXCEPTIONS_STACKSIZE = 0x400
+  USE_EXCEPTIONS_STACKSIZE = 0x1000
 endif
 
 # Enables the use of FPU (no, softfp, hard).
@@ -151,6 +151,7 @@ STMSRC = $(RELATIVE)/COMMON/stm
 EXTSRC = $(RELATIVE)/COMMON/ext
 VARIOUS = $(RELATIVE)/COMMON/various
 USBD_LIB   := $(VARIOUS)/Chibios-USB-Devices/mass_storage
+ETL_LIB = ../../../../etl/include
 TOOLDIR    := $(VARIOUS)/TOOLS
 
 CONFDIR    := ./cfg
@@ -216,7 +217,7 @@ ASMXSRC = $(ALLXASMSRC)
 
 # Inclusion directories.
 INCDIR = $(CONFDIR) $(ALLINC) $(CHIBIOS)/os/various $(VARIOUS) \
-	 $(EXTLIB) $(USBD_LIB) $(TLSFINC) $(EXTSRC)
+	 $(EXTLIB) $(USBD_LIB) $(TLSFINC) $(EXTSRC) $(ETL_LIB) 
 
 #
 # Project, sources and paths

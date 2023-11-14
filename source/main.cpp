@@ -1,9 +1,9 @@
 #include <ch.h>
 #include <hal.h>
 #include "ramArch.h"
-#include "stdutil.h"		// necessaire pour initHeap
-#include "ttyConsole.h"		// fichier d'entête du shell
-#include "leds.h"		// fichier d'entête du shell
+#include "stdutil.h"		
+#include "ttyConsole.hpp"	
+#include "leds.h"		
 #include "internalSensors.hpp"
 #include <array>
 #include <algorithm>
@@ -108,15 +108,16 @@ int main (void)
   
   consoleInit();	// initialisation des objets liés au shell
   consoleLaunch();      // lancement du shell
+  //chThdSleep(TIME_INFINITE);
   ledSet(LINE_LED4, LED_BLINKFAST);
   chThdSleepSeconds(5);
   ledSet(LINE_LED3, LED_BLINKFAST);
   while(true) {
     cmd_sdiotest(chp, false, nullptr);
-    chThdSleepSeconds(5);
+    chThdSleepSeconds(10);
   }
-  //  chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO, &gpioPulse, NULL); 
-  //  launchSensorsThd();
+  chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO, &gpioPulse, NULL); 
+  launchSensorsThd();
   
   chThdSleep(TIME_INFINITE);
 }

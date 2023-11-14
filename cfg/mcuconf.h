@@ -146,7 +146,7 @@
 #define STM32_STOPWUCK                      0
 #define STM32_RTCPRE_VALUE                  8
 #define STM32_CKPERSEL                      STM32_CKPERSEL_HSE_CK
-#define STM32_SDMMCSEL                      STM32_SDMMCSEL_PLL1_Q_CK
+#define STM32_SDMMCSEL                      STM32_SDMMCSEL_PLL2_R_CK //STM32_SDMMCSEL_PLL1_Q_CK
 #define STM32_QSPISEL                       STM32_QSPISEL_HCLK
 #define STM32_FMCSEL                        STM32_QSPISEL_HCLK
 #define STM32_SWPSEL                        STM32_SWPSEL_PCLK1
@@ -360,12 +360,12 @@
  */
 #define STM32_SDC_USE_SDMMC1                TRUE
 #define STM32_SDC_USE_SDMMC2                FALSE
-#define STM32_SDC_SDMMC_UNALIGNED_SUPPORT   FALSE
-#define STM32_SDC_SDMMC_WRITE_TIMEOUT       1000000
-#define STM32_SDC_SDMMC_READ_TIMEOUT        1000000
+#define STM32_SDC_SDMMC_UNALIGNED_SUPPORT   TRUE
+#define STM32_SDC_SDMMC_WRITE_TIMEOUT       10000
+#define STM32_SDC_SDMMC_READ_TIMEOUT        10000
 #define STM32_SDC_SDMMC_CLOCK_DELAY         10
-#define STM32_SDC_SDMMC_PWRSAV              FALSE
-//#define STM32_SDC_MAX_CLOCK		    12000000
+#define STM32_SDC_SDMMC_PWRSAV              TRUE
+//#define STM32_SDC_MAX_CLOCK		    1000000
 /*
  * SERIAL driver system settings.
  */
@@ -506,9 +506,11 @@
 
 struct SerialUSBDriver;
 extern struct SerialUSBDriver SDU1;
-#define CONSOLE_DEV_USB 1
-#define USBDRIVER       USBD1
-#define CONSOLE_DEV_SD  SDU1
+// #define CONSOLE_DEV_USB 1
+// #define USBDRIVER       USBD1
+// #define CONSOLE_DEV_SD  SDU1
+#define CONSOLE_DEV_USB 0
+#define CONSOLE_DEV_SD  SD3
 
 #define CHPRINTF_USE_STDLIB		    1
 #define CHPRINTF_BUFFER_SIZE		    160
