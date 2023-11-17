@@ -52,11 +52,11 @@
  */
 
 #define STM32_NOCACHE_ENABLE                FALSE
-#define STM32_NOCACHE_MPU_REGION            MPU_REGION_6
-#define STM32_NOCACHE_SRAM1_SRAM2           FALSE
-#define STM32_NOCACHE_SRAM3                 TRUE
-#define STM32_NOCACHE_RBAR                  0x24000000U
-#define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_16K
+/* #define STM32_NOCACHE_MPU_REGION            MPU_REGION_6 */
+/* #define STM32_NOCACHE_SRAM1_SRAM2           FALSE */
+/* #define STM32_NOCACHE_SRAM3                 TRUE */
+/* #define STM32_NOCACHE_RBAR                  0x24000000U */
+/* #define STM32_NOCACHE_RASR                  MPU_RASR_SIZE_128K */
 
 /*
  * PWR system settings.
@@ -103,7 +103,7 @@
 #define STM32_PLL2_Q_ENABLED                TRUE
 #define STM32_PLL2_R_ENABLED                TRUE
 #define STM32_PLL2_DIVM_VALUE               4
-#define STM32_PLL2_DIVN_VALUE               480
+#define STM32_PLL2_DIVN_VALUE               400
 #define STM32_PLL2_FRACN_VALUE              0
 #define STM32_PLL2_DIVP_VALUE               100
 #define STM32_PLL2_DIVQ_VALUE               8
@@ -360,12 +360,12 @@
  */
 #define STM32_SDC_USE_SDMMC1                TRUE
 #define STM32_SDC_USE_SDMMC2                FALSE
-#define STM32_SDC_SDMMC_UNALIGNED_SUPPORT   TRUE
+#define STM32_SDC_SDMMC_UNALIGNED_SUPPORT   FALSE
 #define STM32_SDC_SDMMC_WRITE_TIMEOUT       10000
 #define STM32_SDC_SDMMC_READ_TIMEOUT        10000
 #define STM32_SDC_SDMMC_CLOCK_DELAY         10
 #define STM32_SDC_SDMMC_PWRSAV              TRUE
-//#define STM32_SDC_MAX_CLOCK		    1000000
+//#define STM32_SDC_MAX_CLOCK		    800000
 /*
  * SERIAL driver system settings.
  */
@@ -431,7 +431,7 @@
  * ST driver system settings.
  */
 #define STM32_ST_IRQ_PRIORITY               8
-#define STM32_ST_USE_TIMER                  2
+#define STM32_ST_USE_TIMER                  5
 
 /*
  * TRNG driver system settings.

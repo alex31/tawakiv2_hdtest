@@ -17,12 +17,17 @@ extern const uint32_t __ram3_size__;
 extern const uint32_t __ram4_base__;
 extern const uint32_t __ram4_size__;
 
+/*
+MPU_RASR_SIZE(n)                    ((n) << 1U)
+MPU_RASR_SIZE_32                    MPU_RASR_SIZE(4U)
+
+ */
 static uint32_t getMPU_RASR_SIZE(const uint32_t ldSize)
 {
   // 2^n -> n-1
   chDbgAssert(__builtin_popcount(ldSize) == 1U, "MPU region size must be 2^n");
   chDbgAssert(ldSize >= 32U, "MPU region size must be >= 32");
-  return __builtin_ctz(ldSize) - 1U;
+  return MPU_RASR_SIZE(__builtin_ctz(ldSize) - 1);
 }
 
 
@@ -45,25 +50,27 @@ void mpuConfigureNonCachedRam(void)
   chDbgAssert(ram4_base == 0x38000000, "MPU ram4 addr mismatch");
 
   chDbgAssert((ram0nc_base % ram0nc_size) == 0, "MPU ram0nc base addr must be size aligned");
+  chDbgAssert(ram0nc_size == 128 * 1024, "MPU ram0nc size must be 128K");
   chDbgAssert((ram3_base % ram3_size) == 0, "MPU ram3 base addr must be size aligned");
   chDbgAssert((ram4_base % ram4_size) == 0, "MPU ram4 base addr must be size aligned");
+  chDbgAssert(getMPU_RASR_SIZE(ram0nc_size) == MPU_RASR_SIZE_128K, "getMPU_RASR_SIZE error");
 
   
   mpuConfigureRegion(MPU_REGION_6,
+		     ram0nc_base,
+		     getMPU_RASR_SIZE(ram0nc_size) | mpuSharedOption
+		     );
+  mpuConfigureRegion(MPU_REGION_5,
 		     ram3_base,
 		     getMPU_RASR_SIZE(ram3_size) | mpuSharedOption
 		     );
-  mpuConfigureRegion(MPU_REGION_5,
+  mpuConfigureRegion(MPU_REGION_4,
 		     ram4_base,
 		     getMPU_RASR_SIZE(ram4_size) | mpuSharedOption
-		     );
-  mpuConfigureRegion(MPU_REGION_4,
-		     ram0nc_base,
-		     getMPU_RASR_SIZE(ram0nc_size) | mpuSharedOption
 		     );
   
   mpuEnable(MPU_CTRL_PRIVDEFENA);
   __ISB();
   __DSB();
-  SCB_CleanInvalidateDCache();
+   SCB_CleanInvalidateDCache();
 }
