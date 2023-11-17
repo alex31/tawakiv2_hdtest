@@ -200,6 +200,7 @@ CSRC = $(ALLCSRC) \
        $(VARIOUS)/sdLog.c \
        $(VARIOUS)/msg_queue.c \
        $(VARIOUS)/sdio.c \
+       $(VARIOUS)/sdioTest.c \
        $(USBD_LIB)/usb_msd.c
 
 

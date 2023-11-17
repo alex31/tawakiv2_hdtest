@@ -7,7 +7,7 @@
 #include "internalSensors.hpp"
 #include <array>
 #include <algorithm>
-#include "sdio.h"
+#include "sdioTest.h"
 
 /*
   TODO : pour le BMP390 et le LIS3MDL en I²C, l'ICM40605, on utilise une mémoire non cache et on force le flush : 
