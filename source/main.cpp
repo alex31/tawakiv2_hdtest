@@ -10,11 +10,11 @@
 #include "sdioTest.h"
 
 /*
-  TODO : pour le BMP390 et le LIS3MDL en I²C, l'ICM40605, on utilise une mémoire non cache et on force le flush : 
-         choisir une des 2 solutions, mais pas les 2 !
-         possibilité : ne pas disabler le cache de ram4, et faire un invalidate avant de lire le buffer de samples ADC
-                       qui devra être aligné 32 et avec taille alignée 32 aussi
+  TODO :
   
+  * test sdLog
+  * test ADC (tension batterie)
+  * test/debug usbserie 
   
  */
 
@@ -66,8 +66,8 @@ static void gpioPulse (void *)
   }
   
   while (true) {
-    auto ts = TIME_I2MS(chVTGetSystemTime());
-    auto limit = ts+50; // a complete cycle every 60 milliseconds
+    const auto ts = chVTGetSystemTime();
+    const auto limit = ts + TIME_MS2I(50); // a complete cycle every 50 milliseconds
     
     for (const auto &output : sdLines) {
 
@@ -79,8 +79,8 @@ static void gpioPulse (void *)
       }
 
       // the one which output is output pushpull 
-      palSetLineMode(output, PAL_MODE_OUTPUT_PUSHPULL);
       palClearLine(output);
+      palSetLineMode(output, PAL_MODE_OUTPUT_PUSHPULL);
       chThdSleepMicroseconds(100);		// pulse negatif de 100 µs
       palSetLine(output);
       chThdSleepMilliseconds(1);		// pulse de 1 ms
@@ -88,10 +88,12 @@ static void gpioPulse (void *)
       chThdSleepMicroseconds(100);
     }
 
-    chThdSleepUntil(TIME_MS2I(limit)); // frequence de 20hz (50ms)
+    chThdSleepUntil(limit); // frequence de 20hz (50ms)
    }
 }
 
+// static void testSpi6(void);
+// static void testSpi2(void);
 
 int main (void)
 {
@@ -108,18 +110,42 @@ int main (void)
   
   consoleInit();	// initialisation des objets liés au shell
   consoleLaunch();      // lancement du shell
-  //chThdSleep(TIME_INFINITE);
+
+  // DebugTrace("test SPI2");
+  // chThdSleepMilliseconds(100);
+
+  // DebugTrace("test SPI6");
+  // chThdSleepMilliseconds(100);
+  //testSpi6();
+  
   ledSet(LINE_LED4, LED_BLINKFAST);
   chThdSleepSeconds(5);
   ledSet(LINE_LED3, LED_BLINKFAST);
-  while(true) {
-    cmd_sdiotest(chp, false, nullptr);
-    chThdSleepSeconds(10);
-  }
-  chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO, &gpioPulse, NULL); 
+  chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO+8, &gpioPulse, NULL); 
   launchSensorsThd();
   
   chThdSleep(TIME_INFINITE);
 }
 
 
+// static void testSpi6(void)
+// {
+//   static const SPIConfig spiCfg = {
+//     .circular         = false,
+//      .slave	    = false,
+//      .data_cb          = nullptr,
+//      .error_cb         = [](hal_spi_driver*) {chSysHalt("spi cb error");},
+//     .ssline	    = LINE_SPI6_CS_INTERNAL,
+//     .cfg1             = SPI_CFG1_MBR_DIV16 | SPI_CFG1_DSIZE_VALUE(7),
+//     .cfg2             = SPI_CFG2_CPOL | SPI_CFG2_CPHA
+//   };
+
+//   spiStart(&SPID6, &spiCfg);
+//   __attribute__ ((section(BDMA_SECTION "_init"), aligned(8)))
+//     static uint8_t w_array[] = {255, 0};
+//   __attribute__ ((section(BDMA_SECTION), aligned(8)))
+//     static uint8_t r_array[2];
+//   spiSelect(&SPID6);
+//   spiSend(&SPID6, sizeof(w_array), w_array);
+//   spiUnselect(&SPID6);
+// }

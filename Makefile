@@ -10,8 +10,8 @@ DEBUG := 1
 OPT_SPEED := 2
 OPT_SIZE := 3
 
-EXECMODE := $(DEBUG)
-#EXECMODE := $(OPT_SPEED)
+#EXECMODE := $(DEBUG)
+EXECMODE := $(OPT_SPEED)
 #EXECMODE := $(OPT_SIZE)
 
 GCCVERSIONGTEQ10 := $(shell expr `arm-none-eabi-gcc -dumpversion | cut -f1 -d.` \>= 10)
@@ -22,7 +22,7 @@ GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
             -Werror=sign-compare \
             -Wshadow -Wparentheses -fmax-errors=5 \
             -ftrack-macro-expansion=2 -Wno-error=strict-overflow -Wstrict-overflow=2 \
-            -Wvla-larger-than=128 -Wduplicated-branches -Wdangling-else \
+            -Wvla-larger-than=600 -Wduplicated-branches -Wdangling-else \
 	    -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches \
             -Wlogical-op -Wformat-overflow=2
 
@@ -48,7 +48,6 @@ ifeq ($(EXECMODE),$(OPT_SPEED))
          -falign-functions=16 -fomit-frame-pointer \
          -DCH_DBG_SYSTEM_STATE_CHECK=0 -DCH_DBG_ENABLE_CHECKS=0 \
          -DCH_DBG_ENABLE_ASSERTS=0 -DCH_DBG_ENABLE_STACK_CHECK=0 \
-         -DCH_DBG_FILL_THREADS=0 \
           $(GCC_DIAG)
   USE_LTO = yes
 endif

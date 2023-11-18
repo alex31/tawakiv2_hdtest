@@ -50,8 +50,8 @@ constexpr uint32_t VSENSE_CHANNEL	 = ADC_CHANNEL_IN18;
 constexpr uint32_t VREFINT_CHANNEL	 = ADC_CHANNEL_IN19;
 
 // ADC3 is connected via BMDA which is only able to access RAM4
-__attribute__((section(".ram4")))
-static adcsample_t samples[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH];
+
+static adcsample_t IN_BDMA_SECTION(samples[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH]);
 
 static const ADCConversionGroup adcgrpcfg = {
   .circular     = true,
@@ -77,8 +77,8 @@ static const ADCConversionGroup adcgrpcfg = {
    ADC_SMPR2_SMP_AN19(ADC_SMPR_SMP_810P5)
  },
  .sqr          = {
-   ADC_SQR1_SQ1_N(EXTBAT_CHANNEL) | ADC_SQR1_SQ1_N(VSENSE_CHANNEL) |
-   ADC_SQR1_SQ1_N(VREFINT_CHANNEL),
+   ADC_SQR1_SQ1_N(EXTBAT_CHANNEL) | ADC_SQR1_SQ2_N(VSENSE_CHANNEL) |
+   ADC_SQR1_SQ3_N(VREFINT_CHANNEL),
    0U, 0U, 0U
  }
 };
@@ -117,11 +117,12 @@ static constexpr I2CConfig i2ccfg_400 __attribute__((unused)) = {
 
 /* 7.5 Mhz, 8 bits word, CPHA= second (rising) edge, CPOL= high level idle state */
 const SPIConfig spiCfg = {
-  .circular         = true,
-  .slave	    = false,
-  .data_cb          = nullptr,
-  .error_cb         = [](hal_spi_driver*) {chSysHalt("spi cb error");},
-  .ssline = LINE_SPI6_CS_INTERNAL,
+  .circular         = false,
+   .slave	    = false,
+   .data_cb          = nullptr,
+   .error_cb         = [](hal_spi_driver*) {chSysHalt("spi cb error");},
+  //  .end_cb           = nullptr,
+  .ssline	    = LINE_SPI6_CS_INTERNAL,
   .cfg1             = SPI_CFG1_MBR_DIV16 | SPI_CFG1_DSIZE_VALUE(7),
   .cfg2             = SPI_CFG2_CPOL | SPI_CFG2_CPHA
 };
@@ -149,7 +150,7 @@ static constexpr Lis3mdlConfig lisCfg = {
     .threshold = 0U
   }
 };
-static Lis3mdlDriver lisd; 
+static Lis3mdlDriver IN_BDMA_SECTION(lisd); 
 
 /*
 #                 ____                                              _                          
@@ -179,7 +180,7 @@ static Bmp3xxConfig bmp3cfg = {
 };
 
 #pragma GCC diagnostic pop
-static Bmp3xxDriver bmp3p;
+static Bmp3xxDriver IN_BDMA_SECTION(bmp3p);
 
 
 /*
@@ -217,11 +218,11 @@ const Inv3Config icmCfg =  {
   .accelScale = ACCEL_FS_SEL_2G,
   .externClockRef = true,
 };
-static Inv3Driver inv3d;
+static Inv3Driver IN_BDMA_SECTION(inv3d);
 
-__attribute__((section(".ram4")))
+__attribute__((section(BDMA_SECTION)))
 static THD_WORKING_AREA(waSensorsAcquire, 2*1024) ;	
-__attribute__((section(".ram4")))
+__attribute__((section(BDMA_SECTION)))
 static THD_WORKING_AREA(waBatterySurvey, 1024);	
 static void sensorsAcquire (void *arg);		
 
@@ -405,6 +406,11 @@ static void powerUnplugSurvey (void *arg)
   (void)arg;			
   chRegSetThreadName("power Unplug Survey");
 
+  // while(true) {
+  //   DebugTrace("V = %.2f", getVbatVoltage());
+  //   chThdSleepSeconds(2);
+  // }
+  
   while (true) {
     if (getVbatVoltage() < 6.0) {
       BOARD_GROUP_DECLFOREACH(led, LINE_LEDS_GROUP) {
@@ -430,7 +436,7 @@ static void sensorsAcquire (void *arg)
   while (not initSensors()) {
     chThdSleepSeconds(1);
   }
-  
+
   while (true) {
     // MAG
     lis3mdlWaitUntilDataReady(&lisd);
@@ -458,7 +464,7 @@ static void sensorsAcquire (void *arg)
     // BARO
     if (bmp3xxFetch(&bmp3p, BMP3_PRESS | BMP3_TEMP) == MSG_OK) {
       DebugTrace("Temp =%.2f, Press=%.2f mB",
-		 bmp3xxGetTemp(&bmp3p)/100, bmp3xxGetPressure(&bmp3p)/10000.0f);
+		 bmp3xxGetTemp(&bmp3p), bmp3xxGetPressure(&bmp3p)/100.0f);
       sdLogWriteLog(file, "Temp =%.2f, Press=%.2f mB",
 		    bmp3xxGetTemp(&bmp3p)/100, bmp3xxGetPressure(&bmp3p)/10000.0f);
       

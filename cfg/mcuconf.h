@@ -396,7 +396,7 @@
  * SPI driver system settings.
  */
 #define STM32_SPI_USE_SPI1                  FALSE
-#define STM32_SPI_USE_SPI2                  FALSE
+#define STM32_SPI_USE_SPI2                  TRUE
 #define STM32_SPI_USE_SPI3                  FALSE
 #define STM32_SPI_USE_SPI4                  FALSE
 #define STM32_SPI_USE_SPI5                  FALSE
@@ -508,9 +508,9 @@ struct SerialUSBDriver;
 extern struct SerialUSBDriver SDU1;
 // #define CONSOLE_DEV_USB 1
 // #define USBDRIVER       USBD1
-// #define CONSOLE_DEV_SD  SDU1
-#define CONSOLE_DEV_USB 0
-#define CONSOLE_DEV_SD  SD3
+#define CONSOLE_DEV_SD  SDU1
+#define CONSOLE_DEV_USB 1
+//#define CONSOLE_DEV_SD  SD3
 
 #define CHPRINTF_USE_STDLIB		    1
 #define CHPRINTF_BUFFER_SIZE		    160

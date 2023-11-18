@@ -12,6 +12,10 @@
 #include <etl/vector.h>
 #include <etl/string_utilities.h>
 
+#if CONSOLE_DEV_USB
+#include "usb_serial.h"
+#endif
+
 #ifdef CONSOLE_DEV_SD
 
 /*===========================================================================*/
@@ -548,7 +552,7 @@ void consoleInit (void)
    */
 
 #if CONSOLE_DEV_USB != 0
-  usbSerialInit(&SDU1, &USBDRIVER); 
+  usbSerialInit(&SDU1, &USBD1); 
   chp = (BaseSequentialStream *) &SDU1;
 #else
   sdStart(&CONSOLE_DEV_SD, &ftdiConfig);
@@ -578,8 +582,8 @@ void consoleLaunch (void)
       chThdSleepMilliseconds(10);
     }
     shelltp = shellCreate(&shell_cfg1, SHELL_WA_SIZE, NORMALPRIO - 1);
-    palSetLine(LINE_USB_LED);
-  } else if (shelltp && (chThdTerminated(shelltp))) {
+    //    palSetLine(LINE_USB_LED);
+  } else if (shelltp && (chThdTerminatedX(shelltp))) {
     chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
     shelltp = NULL;           /* Triggers spawning of a new shell.        */
   }
