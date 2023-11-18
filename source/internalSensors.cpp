@@ -436,7 +436,7 @@ static void sensorsAcquire (void *arg)
   while (not initSensors()) {
     chThdSleepSeconds(1);
   }
-
+  DebugTrace("\r\n\n\n");
   while (true) {
     // MAG
     lis3mdlWaitUntilDataReady(&lisd);
@@ -445,7 +445,7 @@ static void sensorsAcquire (void *arg)
     }
     lis3mdlFetch(&lisd, LIS3_TEMP_OUT_L, LIS3_TEMP_OUT_H);
     lis3mdlGetMag(&lisd, &mag);
-    DebugTrace ("MAG x=%.3f y=%.3f z=%.3f temp=%.2f status=0x%x A=%.1f len=%0.2f",
+    DebugTrace ("MAG x=%.3f y=%.3f z=%.3f temp=%.2f status=0x%x A=%.1f len=%0.2f\t\t\t",
 		mag.v[0], mag.v[1], mag.v[2],
 		lis3mdlGetTemp(&lisd),
 		lis3mdlGetStatus(&lisd),
@@ -463,13 +463,13 @@ static void sensorsAcquire (void *arg)
 		     mag.v[2] * mag.v[2]));
     // BARO
     if (bmp3xxFetch(&bmp3p, BMP3_PRESS | BMP3_TEMP) == MSG_OK) {
-      DebugTrace("Temp =%.2f, Press=%.2f mB",
+      DebugTrace("Temp =%.2f, Press=%.2f mB\t\t\t",
 		 bmp3xxGetTemp(&bmp3p), bmp3xxGetPressure(&bmp3p)/100.0f);
       sdLogWriteLog(file, "Temp =%.2f, Press=%.2f mB",
 		    bmp3xxGetTemp(&bmp3p)/100, bmp3xxGetPressure(&bmp3p)/10000.0f);
       
     } else {
-      DebugTrace ("bmp fetch FAIL");
+      DebugTrace ("bmp fetch FAIL\t\t\t");
       sdLogWriteLog(file, "bmp fetch FAIL");
       ledSet(LINE_LED2, LED_BLINKFAST);
     }
@@ -478,9 +478,9 @@ static void sensorsAcquire (void *arg)
     Vec3f gyro={0}, acc={0};
     float temp=0;
     inv3GetVal(&inv3d, &temp, &gyro, &acc);
-    DebugTrace("IMU temp= %.2f\r\n"
-	       "IMU gyro=[x=%.2f, y=%.2f, z=%.2f]\r\n"
-	       "IMU acc= [x=%.2f, y=%.2f, z=%.2f]",
+    DebugTrace("IMU temp= %.2f\t\t\t\r\n"
+	       "IMU gyro=[x=%.2f, y=%.2f, z=%.2f]\t\t\t\r\n"
+	       "IMU acc= [x=%.2f, y=%.2f, z=%.2f]\t\t\t",
 	       temp, gyro.v[0], gyro.v[1],  gyro.v[2],
 	       acc.v[0], acc.v[1],  acc.v[2]);
     sdLogWriteLog(file, "IMU temp= %.2f\r\n"
@@ -491,8 +491,12 @@ static void sensorsAcquire (void *arg)
     
     const float vbat  = getVbatVoltage();
     const float coretemp = getCoreTemp();
-    DebugTrace("vbat = %.2f core temp = %.1f",
+    DebugTrace("vbat = %.2f core temp = %.1f\t\t\t",
 	       vbat, coretemp);
+    chprintf(chp, "                                                                      ");
+    chprintf(chp, "                                                                      ");
+    chprintf(chp, "                                                                      ");
+    chprintf(chp, "%c[15H", 27);
     sdLogWriteLog(file, "vbat = %.2f core temp = %.1f",
 		  vbat, coretemp);
     
