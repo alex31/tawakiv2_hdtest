@@ -55,6 +55,7 @@
 // see board.cfg for detail about LINE_CONTINUITY_GROUP
 static const std::array sdLines = {LINE_CONTINUITY_GROUP};
 
+__attribute__ ((section(FAST_SECTION), aligned(8)))
 static THD_WORKING_AREA(waGpioPulse, 304);
 static void gpioPulse (void *)
 {
