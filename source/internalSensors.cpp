@@ -18,8 +18,10 @@ static bool  sdLogInit(void);
 static void powerUnplugSurvey (void *arg);
 static const uint16_t *TS_CAL1 =  (uint16_t *) 0x1FF1E820; //  30 °C,V=3.3V
 static const uint16_t *TS_CAL2 =  (uint16_t *) 0x1FF1E840; //  110 °C,V=3.3V
+static const uint16_t *VREFINT_VAL =  (uint16_t *) 0x1FF1E860;
 static float scaleTemp(const adcsample_t rawt);
 static float scaleVolt(const adcsample_t rawt);
+static float correctedVref(const adcsample_t rawt);
 
 /*
 #                            _     _____                      _          
@@ -222,7 +224,7 @@ static Inv3Driver IN_BDMA_SECTION(inv3d);
 
 __attribute__((section(BDMA_SECTION)))
 static THD_WORKING_AREA(waSensorsAcquire, 2*1024) ;	
-__attribute__((section(BDMA_SECTION)))
+__attribute__((section(FAST_SECTION)))
 static THD_WORKING_AREA(waBatterySurvey, 1024);	
 static void sensorsAcquire (void *arg);		
 
@@ -367,6 +369,13 @@ static float scaleVolt(const adcsample_t rawt)
   return (rawt / 65535.0f) * 3.3f; 
 }
 
+/*
+    VREF+ = 3.3 V x VREFINT_CAL / VREFINT_DATA
+ */
+static float correctedVref(const adcsample_t rawt)
+{
+  return 3.3f * (*VREFINT_VAL) / rawt;
+}
 
 
 static bool  sdLogInit(void)
@@ -445,7 +454,7 @@ static void sensorsAcquire (void *arg)
     }
     lis3mdlFetch(&lisd, LIS3_TEMP_OUT_L, LIS3_TEMP_OUT_H);
     lis3mdlGetMag(&lisd, &mag);
-    DebugTrace ("MAG x=%.3f y=%.3f z=%.3f temp=%.2f status=0x%x A=%.1f len=%0.2f\t\t\t",
+    DebugTrace ("MAG x=%.3f y=%.3f z=%.3f temp=%.2f status=0x%x A=%.1f len=%0.2f                        ",
 		mag.v[0], mag.v[1], mag.v[2],
 		lis3mdlGetTemp(&lisd),
 		lis3mdlGetStatus(&lisd),
@@ -463,13 +472,13 @@ static void sensorsAcquire (void *arg)
 		     mag.v[2] * mag.v[2]));
     // BARO
     if (bmp3xxFetch(&bmp3p, BMP3_PRESS | BMP3_TEMP) == MSG_OK) {
-      DebugTrace("Temp =%.2f, Press=%.2f mB\t\t\t",
+      DebugTrace("Temp =%.2f, Press=%.2f mB                        ",
 		 bmp3xxGetTemp(&bmp3p), bmp3xxGetPressure(&bmp3p)/100.0f);
       sdLogWriteLog(file, "Temp =%.2f, Press=%.2f mB",
 		    bmp3xxGetTemp(&bmp3p)/100, bmp3xxGetPressure(&bmp3p)/10000.0f);
       
     } else {
-      DebugTrace ("bmp fetch FAIL\t\t\t");
+      DebugTrace ("bmp fetch FAIL                        ");
       sdLogWriteLog(file, "bmp fetch FAIL");
       ledSet(LINE_LED2, LED_BLINKFAST);
     }
@@ -478,9 +487,9 @@ static void sensorsAcquire (void *arg)
     Vec3f gyro={0}, acc={0};
     float temp=0;
     inv3GetVal(&inv3d, &temp, &gyro, &acc);
-    DebugTrace("IMU temp= %.2f\t\t\t\r\n"
-	       "IMU gyro=[x=%.2f, y=%.2f, z=%.2f]\t\t\t\r\n"
-	       "IMU acc= [x=%.2f, y=%.2f, z=%.2f]\t\t\t",
+    DebugTrace("IMU temp= %.2f                        \r\n"
+	       "IMU gyro=[x=%.2f, y=%.2f, z=%.2f]                        \r\n"
+	       "IMU acc= [x=%.2f, y=%.2f, z=%.2f]              ",
 	       temp, gyro.v[0], gyro.v[1],  gyro.v[2],
 	       acc.v[0], acc.v[1],  acc.v[2]);
     sdLogWriteLog(file, "IMU temp= %.2f\r\n"
@@ -491,7 +500,7 @@ static void sensorsAcquire (void *arg)
     
     const float vbat  = getVbatVoltage();
     const float coretemp = getCoreTemp();
-    DebugTrace("vbat = %.2f core temp = %.1f\t\t\t",
+    DebugTrace("vbat = %.2f core temp = %.1f            ",
 	       vbat, coretemp);
     chprintf(chp, "                                                                      ");
     chprintf(chp, "                                                                      ");
