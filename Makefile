@@ -11,8 +11,8 @@ OPT_SPEED := 2
 OPT_SIZE := 3
 
 #EXECMODE := $(DEBUG)
-EXECMODE := $(OPT_SPEED)
-#EXECMODE := $(OPT_SIZE)
+#EXECMODE := $(OPT_SPEED)
+EXECMODE := $(OPT_SIZE)
 
 GCCVERSIONGTEQ10 := $(shell expr `arm-none-eabi-gcc -dumpversion | cut -f1 -d.` \>= 10)
 GCC_DIAG =  -Werror -Wno-error=unused-variable -Wno-error=format \
@@ -55,7 +55,6 @@ endif
 ifeq ($(EXECMODE),$(OPT_SIZE)) 
   USE_OPT =  -Os -flto  -Wall -Wextra \
 	    -falign-functions=16 -fomit-frame-pointer \
-            --specs=nano.specs \
             -DCH_DBG_SYSTEM_STATE_CHECK=0 -DCH_DBG_ENABLE_CHECKS=0 \
             -DCH_DBG_ENABLE_ASSERTS=0 -DCH_DBG_ENABLE_STACK_CHECK=0 \
             -DCH_DBG_FILL_THREADS=0 \
