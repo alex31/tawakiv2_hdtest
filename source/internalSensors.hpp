@@ -1,4 +1,4 @@
 #pragma once
 
 
-bool	launchSensorsThd(void);
+bool	launchSensorsThd(thread_t *pulseThd);

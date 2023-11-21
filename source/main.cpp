@@ -66,7 +66,7 @@ static void gpioPulse (void *)
     palSetLine(l);
   }
   
-  while (true) {
+  while (chThdShouldTerminateX()) {
     const auto ts = chVTGetSystemTime();
     const auto limit = ts + TIME_MS2I(50); // a complete cycle every 50 milliseconds
     
@@ -120,10 +120,10 @@ int main (void)
   //testSpi6();
   
   ledSet(LINE_LED4, LED_BLINKFAST);
-  chThdSleepSeconds(5);
   ledSet(LINE_LED3, LED_BLINKFAST);
-  chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO+8, &gpioPulse, NULL); 
-  launchSensorsThd();
+  const auto gpioPulseThdPtr =
+    chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO+8, &gpioPulse, NULL); 
+  launchSensorsThd(gpioPulseThdPtr);
   
   chThdSleep(TIME_INFINITE);
 }
