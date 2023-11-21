@@ -21,6 +21,7 @@ static const uint16_t *TS_CAL2 =  (uint16_t *) 0x1FF1E840; //  110 °C,V=3.3V
 static const uint16_t *VREFINT_VAL =  (uint16_t *) 0x1FF1E860;
 static float scaleTemp(const adcsample_t rawt);
 static float scaleVolt(const adcsample_t rawt);
+[[maybe_unused]]
 static float correctedVref(const adcsample_t rawt);
 
 /*
@@ -33,7 +34,13 @@ static float correctedVref(const adcsample_t rawt);
 */
 static FileDes file=-1;
 
-
+constexpr float R8 = 2'200.0f;
+constexpr float R20 = 18'000.0f;
+static constexpr uint16_t vbatToSample(float thresh)
+{
+  constexpr float oneVoltRaw = 65535/3.3f;
+  return thresh * (R8/(R8+R20)) * oneVoltRaw;
+}
 
 
 /*
@@ -54,23 +61,28 @@ constexpr uint32_t VREFINT_CHANNEL	 = ADC_CHANNEL_IN19;
 // ADC3 is connected via BMDA which is only able to access RAM4
 
 static adcsample_t IN_BDMA_SECTION(samples[ADC_GRP1_NUM_CHANNELS * ADC_GRP1_BUF_DEPTH]);
+static EVENTSOURCE_DECL(lowBattSource);
 
 static const ADCConversionGroup adcgrpcfg = {
   .circular     = true,
   .num_channels = ADC_GRP1_NUM_CHANNELS,
   .end_cb       = nullptr,
-  .error_cb     = [](hal_adc_driver*, uint32_t) {chSysHalt("adc cb error");},
+  .error_cb     = [](hal_adc_driver*, uint32_t) {
+    chSysLockFromISR();
+    chEvtBroadcastI(&lowBattSource);
+    chSysUnlockFromISR();
+  },
   .cfgr         = ADC_CFGR_CONT_ENABLED,
   .cfgr2        = 0,
   .ccr          = 0U,
   .pcsel        = ADC_SELMASK_IN10 | ADC_SELMASK_IN18 | ADC_SELMASK_IN19,
   .ltr1         = 0,
   .htr1         = 0,
-  .ltr2         = 0,
-  .htr2         = 0,
+  .ltr2         = vbatToSample(8),
+  .htr2         = 0x03FFFFFF,
   .ltr3         = 0,
   .htr3         = 0,
-  .awd2cr       = 0,
+  .awd2cr       = ADC_SELMASK_IN10,
   .awd3cr       = 0,
  .smpr         = {
    0,
@@ -257,7 +269,7 @@ bool	launchSensorsThd(void)
   chThdCreateStatic(waSensorsAcquire, sizeof(waSensorsAcquire),
 		    NORMALPRIO, &sensorsAcquire, NULL);
   chThdCreateStatic(waBatterySurvey, sizeof(waBatterySurvey),
-		    NORMALPRIO, &powerUnplugSurvey, NULL);
+		    HIGHPRIO, &powerUnplugSurvey, NULL);
 
   
   return true;
@@ -347,9 +359,6 @@ static bool initSensors(void)
 
 static float getVbatVoltage(void)
 {
-  constexpr float R8 = 2'200.0f;
-  constexpr float R20 = 18'000.0f;
-
   return scaleVolt(samples[EXTBAT]) * ((R8+R20) / R8);
 }
 
@@ -357,6 +366,7 @@ static float getCoreTemp(void)
 {
   return scaleTemp(samples[VSENSE]);
 }
+
 
 
 static float scaleTemp(const adcsample_t rawt)
@@ -414,25 +424,22 @@ static void powerUnplugSurvey (void *arg)
 {
   (void)arg;			
   chRegSetThreadName("power Unplug Survey");
-
-  // while(true) {
-  //   DebugTrace("V = %.2f", getVbatVoltage());
-  //   chThdSleepSeconds(2);
-  // }
+  event_listener_t lst;
+  constexpr uint32_t BATT_UNDERVOLT = 0x1;
   
-  while (true) {
-    if (getVbatVoltage() < 6.0) {
-      BOARD_GROUP_DECLFOREACH(led, LINE_LEDS_GROUP) {
-	ledSet(led, LED_OFF);
-	palClearLine(led);
-      } 
-      sdLogCloseAllLogs(true);
-      sdLogFinish();
-      chThdSleepMilliseconds(4);
-      systemDeepSleep();
-    }
-    chThdSleepMilliseconds(1);
+  chEvtRegisterMask(&lowBattSource, &lst, BATT_UNDERVOLT);
+  chEvtWaitOne(BATT_UNDERVOLT);
+  BOARD_GROUP_DECLFOREACH(led, LINE_CONTINUITY_GROUP) {
+    palSetLineMode(led, PAL_MODE_INPUT_PULLDOWN);
   }
+  sdLogWriteLog(file, "end of file");
+  palSetLineMode(LINE_SRVB1, PAL_MODE_OUTPUT_PUSHPULL);
+  palClearLine(LINE_SRVB1);
+  sdLogCloseAllLogs(true);
+  sdLogFinish();
+  chThdSleepMilliseconds(4);
+  palSetLine(LINE_SRVB1);
+  systemDeepSleep();
 }
 
 
@@ -509,10 +516,6 @@ static void sensorsAcquire (void *arg)
     sdLogWriteLog(file, "vbat = %.2f core temp = %.1f",
 		  vbat, coretemp);
     
-    if ((vbat > 9.0) && (vbat < 11.0) && (coretemp < 60))
-      ledSet(LINE_LED4, LED_BLINKSLOW);
-    else
-      ledSet(LINE_LED4, LED_BLINKFAST);
     
     chThdSleepSeconds(1);
   }

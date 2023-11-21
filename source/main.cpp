@@ -122,7 +122,7 @@ int main (void)
   ledSet(LINE_LED4, LED_BLINKFAST);
   chThdSleepSeconds(5);
   ledSet(LINE_LED3, LED_BLINKFAST);
-  chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO+8, &gpioPulse, NULL); 
+  //  chThdCreateStatic(waGpioPulse, sizeof(waGpioPulse), NORMALPRIO+8, &gpioPulse, NULL); 
   launchSensorsThd();
   
   chThdSleep(TIME_INFINITE);
